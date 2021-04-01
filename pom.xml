@@ -22,9 +22,12 @@
     <junit.platform.version>1.5.2</junit.platform.version>
     <slf4j.version>1.7.25</slf4j.version>
     <protostuff.version>1.7.2</protostuff.version>
+    <springboot.version>2.3.4.RELEASE</springboot.version>
   </properties>
   <modules>
-    <module>simple-rpc-sdk</module>
+    <module>simple-rpc-core</module>
+    <module>simple-rpc-common</module>
+    <module>demo-server</module>
   </modules>
   <dependencies>
     <!-- lombok -->
@@ -76,21 +79,6 @@
           <target>${maven.compiler.target}</target>
           <encoding>${encoding}</encoding>
         </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>${checkstyle-maven-plugin.version}</version>
-        <configuration>
-          <configLocation>config/checkstyle.xml</configLocation>
-        </configuration>
-        <executions>
-          <execution>
-            <goals>
-              <goal>check</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
     </plugins>
   </build>
