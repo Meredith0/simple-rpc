@@ -9,6 +9,7 @@ import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.cache.PathChildrenCache;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.assertj.core.util.Lists;
+import org.springframework.util.CollectionUtils;
 import registry.ServiceDiscovery;
 import utils.ZookeeperUtil;
 
@@ -38,7 +39,7 @@ public class ZkServiceDiscovery implements ServiceDiscovery {
         //没有缓存则去注册中心获取
         String servicePath = ZkServiceRegistry.PATH_PREFIX + "/" + serviceName;
         List<String> serviceInstanceStrList = zkClient.getChildren().forPath(servicePath);
-        if (serviceInstanceStrList == null || serviceInstanceStrList.isEmpty()) {
+        if (CollectionUtils.isEmpty(serviceInstanceStrList)) {
             throw new RpcException("无法获取服务调用地址, serviceName:" + serviceName);
         }
 
