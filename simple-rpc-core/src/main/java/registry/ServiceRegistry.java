@@ -18,6 +18,6 @@ public interface ServiceRegistry {
     /**
      * 取消注册服务, 优雅停机时调用
      */
-    void unRegister(ServiceInstance serviceInstance);
+    void unRegister();
 
 }

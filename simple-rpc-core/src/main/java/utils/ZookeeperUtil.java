@@ -1,17 +1,12 @@
 package utils;
-import cache.RegisteredServiceCache;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.imps.CuratorFrameworkState;
-import org.apache.curator.framework.recipes.cache.PathChildrenCache;
-import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import registry.zookeeper.ZkServiceRegistry;
 
@@ -26,12 +21,13 @@ public final class ZookeeperUtil {
     private static final int RETRY_SLEEP_TIME = 1000;
     private static final int MAX_RETRIES = 3;
     private static CuratorFramework zkClient;
-    private static String zookeeperUrl;
+    private static String zookeeperUrl = "127.0.0.1:2181";
 
-    @Value("${rpc.zookeeper.url}")
-    public void setZookeeperUrl(String zookeeperUrl) {
-        ZookeeperUtil.zookeeperUrl = zookeeperUrl;
-    }
+    // todo 从配置文件中获取
+    // @Value("${rpc.zookeeper.url}")
+    // public void setZookeeperUrl(String zookeeperUrl) {
+    //     ZookeeperUtil.zookeeperUrl = zookeeperUrl;
+    // }
 
     public static CuratorFramework getZkClient() {
         // check if user has set zk address
@@ -46,7 +42,7 @@ public final class ZookeeperUtil {
         }
         //单例
         synchronized (ZookeeperUtil.class) {
-            if (zkClient != null && zkClient.getState() == CuratorFrameworkState.STARTED) {
+            if (zkClient == null || zkClient.getState() == CuratorFrameworkState.STARTED) {
                 //
                 RetryPolicy retryPolicy = new ExponentialBackoffRetry(RETRY_SLEEP_TIME, MAX_RETRIES);
                 zkClient = CuratorFrameworkFactory.builder()
@@ -80,58 +76,6 @@ public final class ZookeeperUtil {
         } catch (Exception e) {
             log.error("zookeeper创建临时节点失败, path:{}", path);
         }
-    }
-
-    /**
-     * 删除临时节点
-     */
-    public static void deleteNodeEndWith(String str) {
-        CuratorFramework zkClient = getZkClient();
-
-        RegisteredServiceCache.CACHE_MAP.keySet().forEach(p -> {
-            try {
-                if (p.endsWith(str)) {
-                    zkClient.delete().forPath(p);
-                    RegisteredServiceCache.CACHE_MAP.keySet().remove(p);
-                }
-            } catch (Exception e) {
-                log.error("zookeeper删除节点失败, node: {}", p);
-            }
-        });
-    }
-
-    public static List<String> getChildrenNodes(String rpcServiceName) {
-        CuratorFramework zkClient = getZkClient();
-        List<String> result = RegisteredServiceCache.CACHE_MAP.get(rpcServiceName);
-
-        if (result != null && !result.isEmpty()) {
-            return result;
-        }
-        String servicePath = ZkServiceRegistry.PATH_PREFIX + rpcServiceName;
-        try {
-            result = zkClient.getChildren().forPath(servicePath);
-            RegisteredServiceCache.CACHE_MAP.put(rpcServiceName, result);
-            registerWatcher(rpcServiceName);
-        } catch (Exception e) {
-            log.error("get children nodes for path [{}] fail", servicePath);
-        }
-        return result;
-    }
-
-    /**
-     * 注册watcher
-     */
-    public static void registerWatcher(String rpcServiceName) throws Exception {
-        CuratorFramework zkClient = getZkClient();
-
-        String servicePath = ZkServiceRegistry.PATH_PREFIX + rpcServiceName;
-        PathChildrenCache pathChildrenCache = new PathChildrenCache(zkClient, servicePath, true);
-        PathChildrenCacheListener pathChildrenCacheListener = (curatorFramework, pathChildrenCacheEvent) -> {
-            List<String> serviceAddresses = curatorFramework.getChildren().forPath(servicePath);
-            RegisteredServiceCache.CACHE_MAP.put(rpcServiceName, serviceAddresses);
-        };
-        pathChildrenCache.getListenable().addListener(pathChildrenCacheListener);
-        pathChildrenCache.start();
     }
 
 }
