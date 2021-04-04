@@ -1,10 +1,10 @@
 package loadBalance.balancer;
-import static org.junit.jupiter.api.Assertions.*;
 
 import com.google.common.collect.Lists;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import model.ServiceInstance;
+import rpc.zengfk.loadBalance.balancer.RandomLoadBalance;
+import rpc.zengfk.model.ServiceInstance;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 

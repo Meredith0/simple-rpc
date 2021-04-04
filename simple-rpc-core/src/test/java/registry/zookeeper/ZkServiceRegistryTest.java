@@ -3,13 +3,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.lang.reflect.Method;
 import lombok.SneakyThrows;
-import model.ServiceInstance;
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.zookeeper.data.Stat;
-import org.junit.Before;
+import rpc.zengfk.model.ServiceInstance;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import utils.ZookeeperUtil;
+import rpc.zengfk.registry.zookeeper.ZkServiceRegistry;
+import rpc.zengfk.utils.ZookeeperUtil;
 
 class ZkServiceRegistryTest {
 
