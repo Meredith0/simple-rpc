@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import rpc.zengfk.model.Service;
 import rpc.zengfk.model.ServiceInstance;
 
 /**
@@ -22,11 +23,11 @@ public class RpcServiceDirectory {
      * key: 服务名称
      * value: 服务实例列表
      */
-    private static final Map<String, List<ServiceInstance>> CACHE_MAP = Maps.newConcurrentMap();
+    private static final Map<Service, List<ServiceInstance>> CACHE_MAP = Maps.newConcurrentMap();
 
-    public static void add(String serviceName, ServiceInstance serviceInstance) {
+    public static void add(Service service, ServiceInstance serviceInstance) {
 
-        List<ServiceInstance> serviceInstances = CACHE_MAP.get(serviceName);
+        List<ServiceInstance> serviceInstances = CACHE_MAP.get(service);
         if (serviceInstances == null) {
             serviceInstances = Lists.newArrayList();
         }
@@ -34,18 +35,19 @@ public class RpcServiceDirectory {
             log.warn("服务实例已存在，serviceInstance：" + serviceInstance);
         }
         serviceInstances.add(serviceInstance);
+        CACHE_MAP.put(service, serviceInstances);
     }
 
-    public static List<ServiceInstance> get(String serviceName) {
+    public static List<ServiceInstance> get(Service service) {
 
-        return Optional.ofNullable(CACHE_MAP.get(serviceName)).orElse(Lists.newArrayList());
+        return Optional.ofNullable(CACHE_MAP.get(service)).orElse(Lists.newArrayList());
     }
 
-    public static void refresh(String serviceName,List<ServiceInstance> cache) {
+    public static void refresh(Service service,List<ServiceInstance> cache) {
 
-        List<ServiceInstance> serviceInstances = CACHE_MAP.get(serviceName);
-        log.info("服务实例缓存刷新, serviceName:{}, {}条 -> {} 条", serviceName, serviceInstances.size(), cache.size());
-        CACHE_MAP.put(serviceName, cache);
+        List<ServiceInstance> serviceInstances = CACHE_MAP.get(service);
+        log.info("服务实例缓存刷新, serviceName:{}, {}条 -> {} 条", service, serviceInstances.size(), cache.size());
+        CACHE_MAP.put(service, cache);
     }
 
 }

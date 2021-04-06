@@ -1,4 +1,4 @@
-package registry.zookeeper;
+package rpc.zengfk.registry.zookeeper;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.lang.reflect.Method;
@@ -17,12 +17,7 @@ class ZkServiceRegistryTest {
     @BeforeAll
     static void setup() {
         zkServiceRegistry = new ZkServiceRegistry();
-        serviceInstance = ServiceInstance.builder()
-                                         .serviceName("testService")
-                                         .version("1.0.0")
-                                         .host("127.0.0.1")
-                                         .port("8080")
-                                         .build();
+        serviceInstance = new ServiceInstance("testService", "1.0,0", "192.168.0.1", "8080");
     }
     @Test
     @SneakyThrows

@@ -29,21 +29,33 @@ public class ZkServiceRegistry implements ServiceRegistry {
      *  前2段为providerPath, 系持久节点, 后面为临时节点
      */
     @Override
-    @SneakyThrows
     public void register(ServiceInstance serviceInstance) {
 
         String providerPath = PATH_PREFIX + serviceInstance.getServiceName();
         CuratorFramework zkClient = ZookeeperUtil.getZkClient();
         //检查服务路径是否存在
-        Stat stat = zkClient.checkExists().forPath(providerPath);
+        Stat stat = null;
+        try {
+            stat = zkClient.checkExists().forPath(providerPath);
+        } catch (Exception e) {
+            log.error("检查服务路径是否存在时出错, {}",e.getMessage());
+        }
         //不存在则创建
         if (stat == null) {
-            zkClient.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath(providerPath);
+            try {
+                zkClient.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath(providerPath);
+            } catch (Exception e) {
+                log.error("创建服务路径失败, {}",e.getMessage());
+            }
         }
 
         //注册临时节点
         String fullPath = providerPath + "/" + toServicePath(serviceInstance);
-        zkClient.create().withMode(CreateMode.EPHEMERAL).forPath(fullPath);
+        try {
+            zkClient.create().withMode(CreateMode.EPHEMERAL).forPath(fullPath);
+        } catch (Exception e) {
+            log.error("注册服务失败, {}",e.getMessage());
+        }
         REGISTERED_CACHE.add(fullPath);
 
         log.info("服务注册成功, servicePath:{}", fullPath);
