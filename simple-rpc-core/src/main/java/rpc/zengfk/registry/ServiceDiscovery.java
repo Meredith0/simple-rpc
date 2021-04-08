@@ -1,6 +1,7 @@
 package rpc.zengfk.registry;
 import java.util.List;
 
+import rpc.zengfk.annotation.SPI;
 import rpc.zengfk.model.Service;
 import rpc.zengfk.model.ServiceInstance;
 
@@ -9,6 +10,7 @@ import rpc.zengfk.model.ServiceInstance;
  * @author zeng.fk
  *     2021-03-30 15:04
  */
+@SPI
 public interface ServiceDiscovery {
 
     /**

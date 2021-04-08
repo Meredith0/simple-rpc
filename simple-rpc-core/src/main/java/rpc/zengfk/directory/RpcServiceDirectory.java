@@ -46,7 +46,7 @@ public class RpcServiceDirectory {
     public static void refresh(Service service,List<ServiceInstance> cache) {
 
         List<ServiceInstance> serviceInstances = CACHE_MAP.get(service);
-        log.info("服务实例缓存刷新, serviceName:{}, {}条 -> {} 条", service, serviceInstances.size(), cache.size());
+        log.info("服务实例缓存刷新, {}, {} -> {} ", service, serviceInstances.size(), cache.size());
         CACHE_MAP.put(service, cache);
     }
 

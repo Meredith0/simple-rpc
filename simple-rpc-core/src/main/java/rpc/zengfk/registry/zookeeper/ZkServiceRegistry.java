@@ -1,8 +1,9 @@
 package rpc.zengfk.registry.zookeeper;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import lombok.SneakyThrows;
+
 import lombok.extern.slf4j.Slf4j;
+import rpc.zengfk.exception.RpcException;
 import rpc.zengfk.model.ServiceInstance;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.zookeeper.CreateMode;
@@ -54,7 +55,7 @@ public class ZkServiceRegistry implements ServiceRegistry {
         try {
             zkClient.create().withMode(CreateMode.EPHEMERAL).forPath(fullPath);
         } catch (Exception e) {
-            log.error("注册服务失败, {}",e.getMessage());
+            throw new RpcException("注册服务失败! " + e.getMessage());
         }
         REGISTERED_CACHE.add(fullPath);
 

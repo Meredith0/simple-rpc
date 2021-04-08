@@ -1,5 +1,4 @@
 package rpc.zengfk.loadBalance.algorithm;
-import com.esotericsoftware.minlog.Log;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -13,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
  * 一致性哈希算法, 参考dubbo
  *
  * @author zeng.fk
- *     2021-04-02 14:41
+ *     2021-04-02 21:41
  */
 @Slf4j
 public final class ConsistentHashSelector<T> {

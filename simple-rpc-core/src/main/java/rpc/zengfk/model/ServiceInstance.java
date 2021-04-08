@@ -1,12 +1,15 @@
 package rpc.zengfk.model;
 
 import lombok.*;
+import rpc.zengfk.model.Service;
+
+import java.net.InetSocketAddress;
 
 /**
- * 服务实例, 用于服务注册和服务发现
+ * 协议，定义了一个暴露的服务
  *
  * @author zeng.fk
- * 2021-04-01 18:04
+ * 2021-04-01 20:04
  */
 @Data
 @Builder
@@ -16,8 +19,14 @@ import lombok.*;
 public class ServiceInstance extends Service {
 
     public static final String SEPARATOR = "#";
+    public static final String MAGIC_CODE = "aRpc";
+
     public String host;
     public String port;
+
+    public InetSocketAddress getIp() {
+        return new InetSocketAddress(host, Integer.parseInt(port));
+    }
 
     public ServiceInstance(String serviceName, String version, String host, String port) {
         super(serviceName, version);

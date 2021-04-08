@@ -1,18 +1,22 @@
 package rpc.zengfk.provider;
+
 import com.google.common.collect.Maps;
-import java.net.InetAddress;
-import java.util.Map;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
-import rpc.zengfk.annotation.RpcService;
-import rpc.zengfk.constant.ExtensionName;
+import rpc.zengfk.config.ExtensionLoaderConfig;
+import rpc.zengfk.enums.ExtensionNameEnum;
 import rpc.zengfk.exception.RpcException;
 import rpc.zengfk.extension.ExtensionLoader;
+import rpc.zengfk.model.Service;
 import rpc.zengfk.model.ServiceInstance;
 import rpc.zengfk.registry.ServiceRegistry;
 import rpc.zengfk.remoting.transport.netty.server.NettyRpcServer;
+import rpc.zengfk.utils.SpringContextUtil;
+
+import java.net.InetAddress;
+import java.util.Map;
 
 /**
  * @author zeng.fk
@@ -22,39 +26,40 @@ import rpc.zengfk.remoting.transport.netty.server.NettyRpcServer;
 @Component
 public class SimpleServiceProvider implements ServiceProvider{
 
+    @Value("${rpc.remoting.netty.port}")
+    public String PORT;
+
     private final ServiceRegistry registry;
-    private static final Map<ServiceInstance, Object> PUBLISHED_SERVICE = Maps.newConcurrentMap();
+    /**
+     * key: Service, 即服务名+版本号  value: serviceBean
+     */
+    private static final Map<Service, Object> PUBLISHED_SERVICE = Maps.newConcurrentMap();
 
     public SimpleServiceProvider() {
-        this.registry = ExtensionLoader.ofType(ServiceRegistry.class).getExtension(ExtensionName.REGISTRY);
+        this.registry = ExtensionLoader.ofType(ServiceRegistry.class).getExtension(ExtensionLoaderConfig.REGISTRY);
     }
 
     @Override
     @SneakyThrows
-    public void publish(Object service, String serviceName, String version) {
+    public void publish(Object serviceBean, String serviceName, String version) {
 
         String host = InetAddress.getLocalHost().getHostAddress();
-        ServiceInstance serviceInstance = ServiceInstance.builder()
-                                                         .serviceName(serviceName)
-                                                         .version(version)
-                                                         .host(host)
-                                                         .port(NettyRpcServer.PORT)
-                                                         .build();
+        ServiceInstance serviceInstance = new ServiceInstance(serviceName, version, host, PORT);
+
         registry.register(serviceInstance);
-        PUBLISHED_SERVICE.put(serviceInstance, service);
+        Service serviceKey = new Service(serviceName, version);
+        PUBLISHED_SERVICE.put(serviceKey, serviceBean);
 
-        log.info("Successfully published service:{}", serviceName);
-
+        log.info("成功暴露服务:{}", serviceName);
     }
 
     @Override
-    public Object get(ServiceInstance serviceInstance) {
-        Object service = PUBLISHED_SERVICE.get(serviceInstance);
+    public Object get(Service service) {
+        Object serviceBean = PUBLISHED_SERVICE.get(service);
         if (service == null) {
-            log.error("service not found, serviceInstance:{}",serviceInstance);
             throw new RpcException("service not found");
         }
-        return service;
+        return serviceBean;
     }
 
 }

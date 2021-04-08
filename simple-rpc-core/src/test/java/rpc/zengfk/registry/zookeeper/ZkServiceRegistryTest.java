@@ -6,7 +6,6 @@ import lombok.SneakyThrows;
 import rpc.zengfk.model.ServiceInstance;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import rpc.zengfk.registry.zookeeper.ZkServiceRegistry;
 import rpc.zengfk.utils.ZookeeperUtil;
 
 class ZkServiceRegistryTest {

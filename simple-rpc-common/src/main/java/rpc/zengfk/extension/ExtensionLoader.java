@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +20,7 @@ import rpc.zengfk.annotation.SPI;
  * eg: LoadBalance接口, 本框架仅实现了一致性哈希和随机
  * 如果用户需要其他负载均衡算法, 可以自行实现LoadBalance, 然后在META-INF/extensions/下添加
  * 文件名:rpc.zengfk.loadBalance.LoadBalance
- * 内容:loadBalance=xxx.xxx.xxx.LoadBalanceImpl
+ * 内容:${ExtensionNameEnum.xxx.getName}=xxx.xxx.xxx.LoadBalanceImpl
  * @author zeng.fk
  *     2021-04-04 22:31
  */
@@ -31,8 +32,8 @@ public final class ExtensionLoader<T> {
     private static final Map<Class<?>, Object> EXTENSION_INSTANCES = new ConcurrentHashMap<>();
 
     private final Class<?> type;
-    private final Map<String, Holder<Object>> cachedInstances = new ConcurrentHashMap<>();
-    private final Holder<Map<String, Class<?>>> cachedClasses = new Holder<>();
+    private final Map<String, Holder<Object>> INSTANCE_CACHE = new ConcurrentHashMap<>();
+    private final Holder<Map<String, Class<?>>> CLASS_CACHE = new Holder<>();
 
     private ExtensionLoader(Class<?> type) {
         this.type = type;
@@ -61,8 +62,8 @@ public final class ExtensionLoader<T> {
 
     /**
      * 获取扩展类实例
-     * @param name 实例名称
-     * @return 扩展类实例
+     * @param name extension name
+     * @return object of extension type
      */
     @SuppressWarnings("unchecked")
     public T getExtension(String name) {
@@ -70,10 +71,10 @@ public final class ExtensionLoader<T> {
             throw new IllegalArgumentException("Extension name should not be empty!");
         }
         //先从缓存中拿
-        Holder<Object> holder = cachedInstances.get(name);
+        Holder<Object> holder = INSTANCE_CACHE.get(name);
         if (holder == null) {
-            cachedInstances.putIfAbsent(name, new Holder<>());
-            holder = cachedInstances.get(name);
+            INSTANCE_CACHE.putIfAbsent(name, new Holder<>());
+            holder = INSTANCE_CACHE.get(name);
         }
         //单例
         Object instance = holder.get();
@@ -94,7 +95,7 @@ public final class ExtensionLoader<T> {
         //加载该接口下的所有实现
         Class<?> clazz = getExtensionClasses().get(name);
         if (clazz == null) {
-            throw new RuntimeException("No such rpc.zengfk.extension of name " + name);
+            throw new RuntimeException("No such extension of name " + name);
         }
         T instance = (T) EXTENSION_INSTANCES.get(clazz);
         if (instance == null) {
@@ -110,16 +111,16 @@ public final class ExtensionLoader<T> {
 
     private Map<String, Class<?>> getExtensionClasses() {
         //先从缓存拿
-        Map<String, Class<?>> classes = cachedClasses.get();
+        Map<String, Class<?>> classes = CLASS_CACHE.get();
 
         if (classes == null) {
-            synchronized (cachedClasses) {
-                classes = cachedClasses.get();
+            synchronized (CLASS_CACHE) {
+                classes = CLASS_CACHE.get();
                 if (classes == null) {
                     classes = new HashMap<>();
                     //读配置文件, 加载类
                     loadDirectory(classes);
-                    cachedClasses.set(classes);
+                    CLASS_CACHE.set(classes);
                 }
             }
         }
@@ -159,7 +160,7 @@ public final class ExtensionLoader<T> {
                         final int ei = line.indexOf('=');
                         String name = line.substring(0, ei).trim();
                         String clazzName = line.substring(ei + 1).trim();
-                        // 读取配置 key: SPI name, value: className
+                        // 读取配置 key: extension name, value: className
                         if (name.length() > 0 && clazzName.length() > 0) {
                             Class<?> clazz = classLoader.loadClass(clazzName);
                             extensionClasses.put(name, clazz);

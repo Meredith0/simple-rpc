@@ -1,4 +1,7 @@
 package rpc.zengfk.annotation;
+
+import org.springframework.context.annotation.Bean;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
@@ -13,7 +16,7 @@ import java.lang.annotation.Target;
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE})
+@Target({ElementType.FIELD})
 @Inherited
 public @interface RpcReference {
 
@@ -23,8 +26,14 @@ public @interface RpcReference {
      */
     String name();
 
+    // String method();
+
+    // Class<?>[] paramTypes();
+
     /**
      * 版本号
      */
     String version() default "1.0.0";
+
+    byte failStrategy() default (byte)0x01;
 }

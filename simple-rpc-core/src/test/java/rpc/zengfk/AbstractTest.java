@@ -3,15 +3,13 @@ package rpc.zengfk;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import rpc.zengfk.model.Service;
 import rpc.zengfk.model.ServiceInstance;
 
 import java.util.List;
 
 /**
  * @author zeng.fk
- * 2021-04-06 10:39
+ * 2021-04-06 19:39
  */
 @Slf4j
 public abstract class AbstractTest {

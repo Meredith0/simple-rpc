@@ -1,16 +1,18 @@
 package rpc.zengfk.loadBalance.balancer;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
+
+import lombok.extern.slf4j.Slf4j;
 import rpc.zengfk.loadBalance.AbstractLoadBalance;
 import rpc.zengfk.loadBalance.algorithm.ConsistentHashSelector;
-import lombok.extern.slf4j.Slf4j;
 import rpc.zengfk.model.ServiceInstance;
+
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 一致性哈希负载均衡器
  *
  * @author zeng.fk
- *     2021-04-02 14:05
+ *     2021-04-02 22:05
  */
 @Slf4j
 public class ConsistentHashLoadBalance extends AbstractLoadBalance {
@@ -26,19 +28,19 @@ public class ConsistentHashLoadBalance extends AbstractLoadBalance {
     private final ConcurrentHashMap<String, ConsistentHashSelector<ServiceInstance>> selectors = new ConcurrentHashMap<>();
 
     @Override
-    protected ServiceInstance doSelect(List<ServiceInstance> serviceInstances, String key) {
-        assert serviceInstances.size() > 1;
+    protected ServiceInstance doSelect(List<ServiceInstance> servicePool, String key) {
+        assert servicePool.size() > 1;
 
         //list中的服务名称均相同
-        String serviceName = serviceInstances.get(0).getServiceName();
+        String serviceName = servicePool.get(0).getServiceName();
 
         ConsistentHashSelector<ServiceInstance> selector = selectors.get(serviceName);
         int identityHashCode = System.identityHashCode(key);
-        log.debug("identityHashCode:{}",identityHashCode);
+        log.debug("identityHashCode:{}", identityHashCode);
 
         // using the hashcode of list to compute the hash only pay attention to the elements in the list
         if (selector == null || selector.getIdentityHashCode() != identityHashCode) {
-            selectors.put(serviceName, new ConsistentHashSelector(serviceInstances, 160, identityHashCode));
+            selectors.put(serviceName, new ConsistentHashSelector(servicePool, 160, identityHashCode));
             selector = selectors.get(serviceName);
         }
 

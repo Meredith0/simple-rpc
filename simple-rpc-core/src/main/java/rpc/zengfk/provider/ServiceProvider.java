@@ -1,5 +1,5 @@
 package rpc.zengfk.provider;
-import lombok.extern.slf4j.Slf4j;
+import rpc.zengfk.model.Service;
 import rpc.zengfk.model.ServiceInstance;
 
 /**
@@ -10,6 +10,6 @@ public interface ServiceProvider {
 
     void publish(Object service, String serviceName, String version);
 
-    Object get(ServiceInstance serviceInstance);
+    Object get(Service service);
 
 }
