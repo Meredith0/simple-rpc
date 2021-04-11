@@ -33,8 +33,8 @@ public @interface RpcService {
     String version() default "1.0.0";
 
     /**
-     * 排除该类的某法, 默认暴露该类的所有public方法, 涉及的类要用全名, 类与方法之间用 # 分隔
-     * eg: xxx.xxx.HelloService#sayHello(java.lang.String,java.lang.String)
+     * 路由键
      */
-    String[] exclude() default {};
+    String tag() default "";
+
 }

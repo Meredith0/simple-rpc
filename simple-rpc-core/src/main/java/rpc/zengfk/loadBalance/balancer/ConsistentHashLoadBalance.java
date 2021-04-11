@@ -29,6 +29,7 @@ public class ConsistentHashLoadBalance extends AbstractLoadBalance {
 
     @Override
     protected ServiceInstance doSelect(List<ServiceInstance> servicePool, String key) {
+        log.debug("进入负载均衡...{}", key);
         assert servicePool.size() > 1;
 
         //list中的服务名称均相同

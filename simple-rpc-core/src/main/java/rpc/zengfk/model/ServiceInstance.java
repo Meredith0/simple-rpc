@@ -1,7 +1,6 @@
 package rpc.zengfk.model;
 
 import lombok.*;
-import rpc.zengfk.model.Service;
 
 import java.net.InetSocketAddress;
 
@@ -19,7 +18,6 @@ import java.net.InetSocketAddress;
 public class ServiceInstance extends Service {
 
     public static final String SEPARATOR = "#";
-    public static final String MAGIC_CODE = "aRpc";
 
     public String host;
     public String port;
@@ -35,7 +33,7 @@ public class ServiceInstance extends Service {
     }
 
     public ServiceInstance(Service service, String host, String port) {
-        super(service.getServiceName(), service.version);
+        super(service.getServiceName(), service.version, service.getTag());
         this.host = host;
         this.port = port;
     }

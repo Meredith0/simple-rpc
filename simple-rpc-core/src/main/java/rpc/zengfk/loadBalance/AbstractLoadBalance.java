@@ -19,7 +19,7 @@ public abstract class AbstractLoadBalance implements LoadBalance {
     @Override
     public ServiceInstance select(List<ServiceInstance> services, String key) {
         if (CollectionUtils.isEmpty(services)) {
-            log.warn("负责均衡时查无可用服务列表");
+            log.warn("查无可用服务列表");
             return null;
         }
 

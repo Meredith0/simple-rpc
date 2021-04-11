@@ -11,24 +11,19 @@ import io.netty.handler.timeout.IdleStateHandler;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import rpc.zengfk.config.ExtensionLoaderConfig;
 import rpc.zengfk.exception.RpcException;
-import rpc.zengfk.extension.ExtensionLoader;
-import rpc.zengfk.loadBalance.LoadBalance;
+import rpc.zengfk.extension.ExtensionName;
 import rpc.zengfk.model.RpcRequest;
 import rpc.zengfk.model.RpcResponse;
 import rpc.zengfk.model.ServiceInstance;
 import rpc.zengfk.protocol.RpcProtocol;
-import rpc.zengfk.registry.ServiceDiscovery;
 import rpc.zengfk.remoting.transport.RpcTransport;
 import rpc.zengfk.remoting.transport.netty.codec.ProtocolDecoder;
 import rpc.zengfk.remoting.transport.netty.codec.ProtocolEncoder;
 import rpc.zengfk.remoting.transport.netty.handler.ResponseHandler;
 
 import javax.annotation.PostConstruct;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -40,15 +35,9 @@ import java.util.concurrent.TimeUnit;
 @Component("nettyRpcClient")
 public final class NettyRpcClient implements RpcTransport {
 
-    private final ServiceDiscovery serviceDiscovery;
-    private final LoadBalance loadBalance;
     private Bootstrap bootstrap;
     private EventLoopGroup eventLoopGroup;
 
-    public NettyRpcClient() {
-        this.serviceDiscovery = ExtensionLoader.ofType(ServiceDiscovery.class).getExtension(ExtensionLoaderConfig.DISCOVERY);
-        this.loadBalance = ExtensionLoader.ofType(LoadBalance.class).getExtension(ExtensionLoaderConfig.LOAD_BALANCE);
-    }
 
     @PostConstruct
     private void start() {
@@ -76,15 +65,11 @@ public final class NettyRpcClient implements RpcTransport {
 
     @Override
     @SneakyThrows
-    public Object sendAsync(RpcRequest req) {
+    public Object sendAsync(RpcRequest req, ServiceInstance serviceInstance) {
+
         CompletableFuture<RpcResponse> responseFuture = new CompletableFuture<>();
 
-        List<ServiceInstance> serviceInstancePool = serviceDiscovery.lookup(req.getService());
-        //一致性哈希负载均衡的key, 默认为本机ip
-        String host = InetAddress.getLocalHost().getHostAddress();
-        ServiceInstance selectedService = loadBalance.select(serviceInstancePool, host);
-
-        Channel channel = getServerChannel(selectedService.getIp());
+        Channel channel = getServerChannel(serviceInstance.getIp());
 
         if (channel.isActive()) {
             FutureBuffer.put(req.getRequestId(), responseFuture);
@@ -98,15 +83,13 @@ public final class NettyRpcClient implements RpcTransport {
                 .addListener((ChannelFutureListener) future -> {
                     if (future.isSuccess()) {
                         log.debug("客户端封装协议并发送成功! protocol:{}", protocol);
-                    }
-                    else {
+                    } else {
                         future.channel().close();
                         responseFuture.completeExceptionally(future.cause());
                         log.error("客户端发送协议失败:", future.cause());
                     }
                 });
-        }
-        else {
+        } else {
             throw new RpcException("服务端channel关闭");
         }
         return responseFuture;

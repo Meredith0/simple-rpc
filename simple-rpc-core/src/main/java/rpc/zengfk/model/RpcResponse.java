@@ -1,7 +1,7 @@
 package rpc.zengfk.model;
 
 import lombok.*;
-import rpc.zengfk.protocol.RpcProtocol;
+import rpc.zengfk.loadBalance.LoadBalance;
 
 import java.io.Serializable;
 
@@ -16,6 +16,9 @@ import java.io.Serializable;
 public class RpcResponse implements Serializable {
 
     private static final long serialVersionUID = 45222463124123243L;
+    private static final int OK = 200;
+    private static final int CLIENT_ERRORS = 400;
+    private static final int SERVER_ERRORS = 500;
 
     private String requestId;
 
@@ -29,15 +32,22 @@ public class RpcResponse implements Serializable {
         RpcResponse rpcResponse = new RpcResponse();
         rpcResponse.setRequestId(requestId);
         rpcResponse.setData(data);
-        rpcResponse.setCode(200);
-        rpcResponse.setMessage("success");
+        rpcResponse.setCode(OK);
+        rpcResponse.setMessage("OK");
         return rpcResponse;
     }
-    public static RpcResponse forFail(String requestId) {
+    public static RpcResponse forServerErrors(String requestId) {
         RpcResponse rpcResponse = new RpcResponse();
         rpcResponse.setRequestId(requestId);
-        rpcResponse.setCode(500);
-        rpcResponse.setMessage("fail");
+        rpcResponse.setCode(SERVER_ERRORS);
+        rpcResponse.setMessage("SERVER ERRORS");
+        return rpcResponse;
+    }
+    public static RpcResponse forClientErrors(String requestId) {
+        RpcResponse rpcResponse = new RpcResponse();
+        rpcResponse.setRequestId(requestId);
+        rpcResponse.setCode(CLIENT_ERRORS);
+        rpcResponse.setMessage("CLIENT ERRORS");
         return rpcResponse;
     }
 

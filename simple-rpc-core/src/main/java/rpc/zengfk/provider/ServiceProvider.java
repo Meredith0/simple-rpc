@@ -8,7 +8,7 @@ import rpc.zengfk.model.ServiceInstance;
  */
 public interface ServiceProvider {
 
-    void publish(Object service, String serviceName, String version);
+    void publish(Object service, String serviceName, String version, String tagName);
 
     Object get(Service service);
 

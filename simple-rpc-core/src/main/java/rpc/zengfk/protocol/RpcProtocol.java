@@ -9,17 +9,22 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * rpc协议
  * 0   1   2   3   4       5   6   7   8   9    10        11    12   13   14   15   16
- * +---+---+---+---+-------+---+---+---+---+----+---------+-----+----+----+----+----+
- * |   magic code  |version|     length    |type|compress|serial|       seqNo       |
- * +---------------+-------+---------------+----+--------+------+-------------------+
+ * +---+---+---+---+-------+---+---+---+---+----+---------+-----+----+----+----+----+    header
+ * |   magic code  |version|     length    |type|compress|serial|       trace id  ---
+ * --- trace id    |sup-span id|span id|
+ * +---------------+-------+---------------+----+--------+------+-------------------+    body
  * |                                                                                |
  * |                               data                                             |
  * |                             ... ...                                            |
  * |                             ... ...                                            |
  * +--------------------------------------------------------------------------------+
- * 4B  magic code（魔法数: srpc）   1B ver（版本: 1）   4B length（消息长度）    1B type（消息类型）
- * 1B compress（压缩类型） 1B serial（序列化类型）    4B  seqNo（rpc请求序列号）
- * body（object类型数据）
+ * header
+ * 4Byte  magic code（魔法数: srpc）,  1Byte ver（版本: 1）, 4Byte length（消息长度）, 1Byte type（消息类型),
+ * 1Byte compress（压缩类型）, 1Byte serial（序列化类型）, 8Byte trace id（跟踪号）, 2Byte sup-span id(父span id)
+ * 2Byte span id(表示一次请求来回)
+ *
+ * body
+ * data（object）
  *
  * @author zeng.fk
  * 2021-04-06 20:33

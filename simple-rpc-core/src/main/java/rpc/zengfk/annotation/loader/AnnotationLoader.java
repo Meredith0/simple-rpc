@@ -13,9 +13,9 @@ import rpc.zengfk.model.Service;
 import rpc.zengfk.provider.ServiceProvider;
 import rpc.zengfk.proxy.RpcRequestProxy;
 import rpc.zengfk.remoting.transport.RpcTransport;
+import rpc.zengfk.router.tag.model.Tag;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 
 /**
  * 加载注解，在bean初始化完成后
@@ -61,16 +61,17 @@ public class AnnotationLoader implements BeanPostProcessor {
         if (StringUtils.isEmpty(serviceName)) {
             serviceName = bean.getClass().getName();
         }
-        provider.publish(bean, serviceName, annotation.version());
+        provider.publish(bean, serviceName, annotation.version(),annotation.tag());
     }
 
     @SneakyThrows
     private Object getProxy(Field field) {
         RpcReference annotation = field.getAnnotation(RpcReference.class);
 
-        Service service = new Service(annotation.name(), annotation.version());
+        Service service = new Service(annotation.name(), annotation.version(), new Tag(annotation.tag()));
+        
         //动态代理
-        RpcRequestProxy invoker = new RpcRequestProxy(transport, service);
-        return invoker.getProxy(field.getType());
+        RpcRequestProxy proxy = new RpcRequestProxy(transport, service);
+        return proxy.newProxyInstance(field.getType());
     }
 }

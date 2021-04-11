@@ -1,33 +1,34 @@
 package rpc.zengfk.utils;
-import java.util.concurrent.TimeUnit;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.imps.CuratorFrameworkState;
 import org.apache.curator.retry.ExponentialBackoffRetry;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Configuration;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author zeng.fk
- *     2021-03-30 15:12
+ * 2021-03-30 15:12
  */
 @Slf4j
-@Component
-public final class ZookeeperUtil {
+@Configuration
+public class ZookeeperUtil {
 
     private static final int RETRY_SLEEP_TIME = 1000;
     private static final int MAX_RETRIES = 3;
     private static CuratorFramework zkClient;
-    private static String zookeeperUrl = "127.0.0.1:2181";
+    private static final String zookeeperUrl;
 
-    // todo 从配置文件中获取
-    // @Value("${rpc.zookeeper.url}")
-    // public void setZookeeperUrl(String zookeeperUrl) {
-    //     ZookeeperUtil.zookeeperUrl = zookeeperUrl;
-    // }
+    static {
+        zookeeperUrl = PropertiesUtil.getZkUrl();
+    }
 
     public static CuratorFramework getZkClient() {
+
         if (zkClient != null && zkClient.getState() == CuratorFrameworkState.STARTED) {
             return zkClient;
         }

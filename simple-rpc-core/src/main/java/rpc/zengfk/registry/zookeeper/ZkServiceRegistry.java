@@ -1,16 +1,17 @@
 package rpc.zengfk.registry.zookeeper;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import lombok.extern.slf4j.Slf4j;
-import rpc.zengfk.exception.RpcException;
-import rpc.zengfk.model.ServiceInstance;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.data.Stat;
 import org.springframework.stereotype.Component;
+import rpc.zengfk.exception.RpcException;
+import rpc.zengfk.model.ServiceInstance;
 import rpc.zengfk.registry.ServiceRegistry;
 import rpc.zengfk.utils.ZookeeperUtil;
+
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author zeng.fk
@@ -82,7 +83,7 @@ public class ZkServiceRegistry implements ServiceRegistry {
     }
 
     private String toServicePath(ServiceInstance s) {
-        return String.join(ServiceInstance.SEPARATOR, s.getServiceName(), s.getVersion(),
+        return String.join(ServiceInstance.SEPARATOR, s.getServiceName(), s.getVersion(), s.getTag().getName(),
             s.getHost() + ":" + s.getPort());
     }
 

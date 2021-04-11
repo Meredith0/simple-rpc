@@ -27,7 +27,7 @@ import rpc.zengfk.annotation.SPI;
 @Slf4j
 public final class ExtensionLoader<T> {
 
-    private static final String EXTENSION_DIR = "META-INF/extensions/";
+    public static final String EXTENSION_DIR = "META-INF/extensions/";
     private static final Map<Class<?>, ExtensionLoader<?>> EXTENSION_LOADERS = new ConcurrentHashMap<>();
     private static final Map<Class<?>, Object> EXTENSION_INSTANCES = new ConcurrentHashMap<>();
 

@@ -2,6 +2,7 @@ package rpc.zengfk.remoting.transport;
 
 import rpc.zengfk.annotation.SPI;
 import rpc.zengfk.model.RpcRequest;
+import rpc.zengfk.model.ServiceInstance;
 
 /**
  * @author zeng.fk
@@ -12,7 +13,7 @@ public interface RpcTransport {
     /**
      * 异步请求
      */
-    Object sendAsync(RpcRequest request);
+    Object sendAsync(RpcRequest request, ServiceInstance serviceInstance);
 
     /**
      * 同步请求

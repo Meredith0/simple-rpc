@@ -12,6 +12,7 @@ import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.assertj.core.util.Lists;
 import org.springframework.util.CollectionUtils;
 import rpc.zengfk.registry.ServiceDiscovery;
+import rpc.zengfk.router.tag.model.Tag;
 import rpc.zengfk.utils.ZookeeperUtil;
 
 /**
@@ -77,15 +78,17 @@ public class ZkServiceDiscovery implements ServiceDiscovery {
      *  将servicePath解析为ServiceInstance
      */
     private ServiceInstance parseServicePath(String path) {
-        // path: {service}#{version}#{host}:{port}
+        // path: {service}#{version}#{tag}#{host}:{port}
         String[] serviceInstanceStr = path.split(ServiceInstance.SEPARATOR);
 
-        if (serviceInstanceStr.length != 3) {
+        if (serviceInstanceStr.length != 4) {
             throw new RpcException("path 解析异常, path:" + path);
         }
-        String[] ipAddress = serviceInstanceStr[2].split(":");
+        String[] ipAddress = serviceInstanceStr[3].split(":");
 
-        return new ServiceInstance(serviceInstanceStr[0], serviceInstanceStr[1], ipAddress[0], ipAddress[1]);
+        Tag tag = new Tag(serviceInstanceStr[2]);
+        Service service = new Service(serviceInstanceStr[0], serviceInstanceStr[1], tag);
+        return new ServiceInstance(service, ipAddress[0], ipAddress[1]);
 
     }
 }

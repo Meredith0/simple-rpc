@@ -95,6 +95,6 @@ public class NettyRpcServer {
 
     private void registerOnline() {
         //该服务仅为上线标志, 不可实际调用
-        serviceProvider.publish(new Object(), "netty-rpc-server", "1.0.0");
+        serviceProvider.publish(new Object(), "netty-rpc-server", "1.0.0","srpc");
     }
 }

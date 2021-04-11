@@ -26,14 +26,16 @@ public @interface RpcReference {
      */
     String name();
 
-    // String method();
-
-    // Class<?>[] paramTypes();
-
     /**
      * 版本号
      */
     String version() default "1.0.0";
 
+    /**
+     * 路由键
+     */
+    String tag() default "";
+
+    @Deprecated
     byte failStrategy() default (byte)0x01;
 }

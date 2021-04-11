@@ -34,8 +34,8 @@ public class HelloServiceTest {
     @PostConstruct
     @Bean
     void test() {
-        log.info("5秒后发起rpc请求...");
+        log.info("15秒后发起rpc请求...");
         ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
-        executorService.schedule(self::rpcSayHello, 5, TimeUnit.SECONDS);
+        executorService.schedule(self::rpcSayHello, 15, TimeUnit.SECONDS);
     }
 }

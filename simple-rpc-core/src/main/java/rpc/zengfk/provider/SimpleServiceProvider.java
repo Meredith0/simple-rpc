@@ -5,15 +5,13 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import rpc.zengfk.config.ExtensionLoaderConfig;
-import rpc.zengfk.enums.ExtensionNameEnum;
 import rpc.zengfk.exception.RpcException;
 import rpc.zengfk.extension.ExtensionLoader;
+import rpc.zengfk.extension.ExtensionName;
 import rpc.zengfk.model.Service;
 import rpc.zengfk.model.ServiceInstance;
 import rpc.zengfk.registry.ServiceRegistry;
-import rpc.zengfk.remoting.transport.netty.server.NettyRpcServer;
-import rpc.zengfk.utils.SpringContextUtil;
+import rpc.zengfk.router.tag.model.Tag;
 
 import java.net.InetAddress;
 import java.util.Map;
@@ -26,7 +24,7 @@ import java.util.Map;
 @Component
 public class SimpleServiceProvider implements ServiceProvider{
 
-    @Value("${rpc.remoting.netty.port}")
+    @Value("${rpc.remoting.netty.port:9998}")
     public String PORT;
 
     private final ServiceRegistry registry;
@@ -36,18 +34,20 @@ public class SimpleServiceProvider implements ServiceProvider{
     private static final Map<Service, Object> PUBLISHED_SERVICE = Maps.newConcurrentMap();
 
     public SimpleServiceProvider() {
-        this.registry = ExtensionLoader.ofType(ServiceRegistry.class).getExtension(ExtensionLoaderConfig.REGISTRY);
+        this.registry = ExtensionLoader.ofType(ServiceRegistry.class).getExtension(ExtensionName.REGISTRY);
     }
 
     @Override
     @SneakyThrows
-    public void publish(Object serviceBean, String serviceName, String version) {
+    public void publish(Object serviceBean, String serviceName, String version, String tagName) {
 
+        Tag tag = new Tag(tagName);
         String host = InetAddress.getLocalHost().getHostAddress();
-        ServiceInstance serviceInstance = new ServiceInstance(serviceName, version, host, PORT);
+        Service service = new Service(serviceName, version, tag);
+        ServiceInstance serviceInstance = new ServiceInstance(service, host, PORT);
 
         registry.register(serviceInstance);
-        Service serviceKey = new Service(serviceName, version);
+        Service serviceKey = new Service(serviceName, version, tag);
         PUBLISHED_SERVICE.put(serviceKey, serviceBean);
 
         log.info("成功暴露服务:{}", serviceName);

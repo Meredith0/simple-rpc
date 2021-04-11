@@ -35,9 +35,8 @@ public class RequestHandler extends SimpleChannelInboundHandler<RpcProtocol> {
         if (ctx.channel().isActive() && ctx.channel().isWritable()) {
             RpcResponse rpcResponse = RpcResponse.forSuccess(rpcRequest.getRequestId(), res);
             protocol.setData(rpcResponse);
-        }
-        else {
-            RpcResponse rpcResponse = RpcResponse.forFail(rpcRequest.getRequestId());
+        } else {
+            RpcResponse rpcResponse = RpcResponse.forClientErrors(rpcRequest.getRequestId());
             protocol.setData(rpcResponse);
             log.error("channel is NOT writable, protocol dropped {}", protocol);
         }
@@ -50,7 +49,7 @@ public class RequestHandler extends SimpleChannelInboundHandler<RpcProtocol> {
         if (evt instanceof IdleStateEvent) {
             IdleState state = ((IdleStateEvent) evt).state();
             if (state == IdleState.READER_IDLE) {
-                log.warn("已经30s未收到客户端心跳，关闭连接...");
+                log.warn("连续30s未收到客户端心跳，关闭连接...");
                 ctx.close();
             }
         } else {
