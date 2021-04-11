@@ -1,10 +1,12 @@
 package rpc.zengfk.remoting.transport.netty.handler;
 
-import io.netty.channel.*;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import rpc.zengfk.model.RpcResponse;
 import rpc.zengfk.protocol.RpcProtocol;
@@ -13,7 +15,6 @@ import rpc.zengfk.remoting.transport.netty.client.NettyRpcClient;
 import rpc.zengfk.utils.SpringContextUtil;
 
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 
 /**
  * rpc响应处理器
@@ -29,7 +30,7 @@ public class ResponseHandler extends SimpleChannelInboundHandler<RpcProtocol> {
      * 处理 response, ByteBuf已在父类中释放
      */
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, RpcProtocol protocol) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, RpcProtocol protocol) {
         log.debug("ResponseHandler接受到protocol:{}", protocol);
         assert protocol != null;
         if (protocol.isHeartbeat()) {
@@ -49,20 +50,29 @@ public class ResponseHandler extends SimpleChannelInboundHandler<RpcProtocol> {
             IdleState state = ((IdleStateEvent) evt).state();
             if (state == IdleState.WRITER_IDLE) {
                 InetSocketAddress server = (InetSocketAddress) ctx.channel().remoteAddress();
-                log.info("10s内无请求发起, 发送心跳包至...{}", server);
-                NettyRpcClient nettyRpcClient = SpringContextUtil.getBean(NettyRpcClient.class);
-                Channel channel = nettyRpcClient.getServerChannel(server);
-                RpcProtocol rpcMessage = RpcProtocol.builder()
+
+                Channel channel = null;
+                NettyRpcClient nettyRpcClient = (NettyRpcClient) SpringContextUtil.getBean("nettyRpcClient");
+                channel = nettyRpcClient.getServerChannel(server);
+                RpcProtocol protocol = RpcProtocol.builder()
                     .type(RpcProtocol.TYPE_HEARTBEAT_PING)
                     .compressor(RpcProtocol.COMPRESSION_GZIP)
                     .serializer(RpcProtocol.SERIALIZER_PROTOSTUFF)
                     .build();
-                channel.writeAndFlush(rpcMessage)
+                log.info("10s内无请求发起, 发送心跳包:{}至...{}", protocol, server);
+                channel.writeAndFlush(protocol)
                     //如果心跳包出错, 则关闭channel FIXME 心跳失败策略
                     .addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
             }
-        } else {
+        }
+        else {
             super.userEventTriggered(ctx, evt);
         }
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+        log.error("RequestHandler catches exception:{}", cause.getMessage());
+        ctx.close();
     }
 }

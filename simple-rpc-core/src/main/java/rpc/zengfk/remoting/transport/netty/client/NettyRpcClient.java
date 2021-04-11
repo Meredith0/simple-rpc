@@ -37,7 +37,7 @@ import java.util.concurrent.TimeUnit;
  * 2021-04-05 16:58
  */
 @Slf4j
-@Component
+@Component("nettyRpcClient")
 public final class NettyRpcClient implements RpcTransport {
 
     private final ServiceDiscovery serviceDiscovery;
@@ -46,28 +46,8 @@ public final class NettyRpcClient implements RpcTransport {
     private EventLoopGroup eventLoopGroup;
 
     public NettyRpcClient() {
-        // log.debug("客户端正在启动...");
         this.serviceDiscovery = ExtensionLoader.ofType(ServiceDiscovery.class).getExtension(ExtensionLoaderConfig.DISCOVERY);
         this.loadBalance = ExtensionLoader.ofType(LoadBalance.class).getExtension(ExtensionLoaderConfig.LOAD_BALANCE);
-        // eventLoopGroup = new NioEventLoopGroup();
-        // bootstrap = new Bootstrap()
-        //     .group(eventLoopGroup)
-        //     .channel(NioSocketChannel.class)
-        //     .handler(new LoggingHandler(LogLevel.INFO))
-        //     .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10 * 1000) //连接超时时间, 10s
-        //     //worker的handler
-        //     .handler(new ChannelInitializer<SocketChannel>() {
-        //         @Override
-        //         protected void initChannel(SocketChannel ch) {
-        //             ChannelPipeline p = ch.pipeline();
-        //             //如果10秒内没有请求, 发送一个心跳包
-        //             p.addLast(new IdleStateHandler(0, 5, 0, TimeUnit.SECONDS));
-        //             p.addLast(new ProtocolEncoder());
-        //             p.addLast(new ProtocolDecoder());
-        //             p.addLast(new ResponseHandler());//响应处理器
-        //         }
-        //     });
-        // log.debug("客户端启动成功! ");
     }
 
     @PostConstruct

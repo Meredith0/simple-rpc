@@ -58,10 +58,10 @@ public class RpcProtocol {
     public void answerHeartbeat() {
         if (isHeartbeat()) {
             if (type == TYPE_HEARTBEAT_PING) {
-                setType(TYPE_HEARTBEAT_PONG);
+                type = TYPE_HEARTBEAT_PONG;
             }
             else {
-                setType(TYPE_HEARTBEAT_PING);
+                type = TYPE_HEARTBEAT_PING;
             }
         }
     }

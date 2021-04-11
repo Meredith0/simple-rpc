@@ -20,13 +20,14 @@ public class RequestHandler extends SimpleChannelInboundHandler<RpcProtocol> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, RpcProtocol protocol) {
-        log.info("RequestHandler接收到protocol: {} ", protocol);
-
         //是心跳就直接返回
         if (protocol.isHeartbeat()) {
             protocol.answerHeartbeat();
+            log.debug("RequestHandler响应心跳: {}...", protocol);
             return;
         }
+        log.info("RequestHandler接收到protocol: {} ", protocol);
+
         RpcRequest rpcRequest = (RpcRequest) protocol.getData();
         Object res = ServiceInvoker.getInstance().accept(rpcRequest);
         protocol.setType(RpcProtocol.TYPE_RESP);

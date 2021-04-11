@@ -66,7 +66,7 @@ public class ProtocolEncoder extends MessageToByteEncoder<RpcProtocol> {
             out.writeInt(length);
             //回到 body 段末尾
             out.writerIndex(bodyIndex);
-            log.debug("protocol encoded! protocol: {}", protocol);
+            log.debug("protocol encoded! {}", protocol);
         } catch (Exception e) {
             log.error("Encode request error!", e);
         }
