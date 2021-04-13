@@ -3,6 +3,7 @@ package rpc.zengfk;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import rpc.zengfk.annotation.RpcService;
+import rpc.zengfk.exception.BusinessException;
 import rpc.zengfk.service.HelloService;
 
 /**
@@ -10,7 +11,6 @@ import rpc.zengfk.service.HelloService;
  * 2021-04-06 23:06
  */
 @Slf4j
-@Component
 @RpcService(name = "helloService")
 public class HelloServiceImpl implements HelloService {
 
@@ -20,4 +20,9 @@ public class HelloServiceImpl implements HelloService {
         return "hello " + str;
     }
 
+    @Override
+    public String testBusinessException(String err) {
+
+        throw new BusinessException(err);
+    }
 }

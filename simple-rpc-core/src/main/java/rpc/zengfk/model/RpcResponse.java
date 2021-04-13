@@ -16,9 +16,10 @@ import java.io.Serializable;
 public class RpcResponse implements Serializable {
 
     private static final long serialVersionUID = 45222463124123243L;
-    private static final int OK = 200;
-    private static final int CLIENT_ERRORS = 400;
-    private static final int SERVER_ERRORS = 500;
+    public static final int OK = 200;
+    public static final int CLIENT_ERRORS = 400;
+    public static final int SERVER_ERRORS = 500;
+    public static final int BUSINESS_EXCEPTION = 600;
 
     private String requestId;
 
@@ -36,19 +37,33 @@ public class RpcResponse implements Serializable {
         rpcResponse.setMessage("OK");
         return rpcResponse;
     }
-    public static RpcResponse forServerErrors(String requestId) {
+
+    public static RpcResponse forBusinessException(String requestId, String msg) {
         RpcResponse rpcResponse = new RpcResponse();
         rpcResponse.setRequestId(requestId);
-        rpcResponse.setCode(SERVER_ERRORS);
-        rpcResponse.setMessage("SERVER ERRORS");
-        return rpcResponse;
-    }
-    public static RpcResponse forClientErrors(String requestId) {
-        RpcResponse rpcResponse = new RpcResponse();
-        rpcResponse.setRequestId(requestId);
-        rpcResponse.setCode(CLIENT_ERRORS);
-        rpcResponse.setMessage("CLIENT ERRORS");
+        rpcResponse.setCode(BUSINESS_EXCEPTION);
+        rpcResponse.setMessage(msg);
         return rpcResponse;
     }
 
+
+
+    public static RpcResponse forServerError(String requestId, String msg) {
+        RpcResponse rpcResponse = new RpcResponse();
+        rpcResponse.setRequestId(requestId);
+        rpcResponse.setCode(SERVER_ERRORS);
+        rpcResponse.setMessage(msg);
+        return rpcResponse;
+    }
+    public static RpcResponse forClientError(String requestId) {
+        RpcResponse rpcResponse = new RpcResponse();
+        rpcResponse.setRequestId(requestId);
+        rpcResponse.setCode(CLIENT_ERRORS);
+        rpcResponse.setMessage("BAD CLIENT");
+        return rpcResponse;
+    }
+
+    public boolean isRpcSuccess() {
+        return code == OK || code == BUSINESS_EXCEPTION;
+    }
 }

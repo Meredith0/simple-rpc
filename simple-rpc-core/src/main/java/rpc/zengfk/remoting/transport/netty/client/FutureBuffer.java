@@ -15,6 +15,9 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public final class FutureBuffer {
 
+    /**
+     * key: requestId, value:RpcResponse Future
+     */
     private static final Map<String, CompletableFuture<RpcResponse>> BUFFER = new ConcurrentHashMap<>();
 
     public static void put(String requestId, CompletableFuture<RpcResponse> future) {

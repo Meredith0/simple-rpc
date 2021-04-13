@@ -7,7 +7,6 @@ import org.springframework.core.io.support.PropertiesLoaderUtils;
 import rpc.zengfk.extension.ExtensionLoader;
 
 import java.util.Properties;
-import java.util.Stack;
 
 /**
  * 配置文件工具类
@@ -19,13 +18,14 @@ public class PropertiesUtil {
 
     public static final String PROPERTIES_LOCATION = "application.properties";
     public static final String ZOOKEEPER_PATH = "rpc.registry.zookeeper.url";
+    private static final String ZOOKEEPER_URL = "127.0.0.1:2181";
 
 
     @SneakyThrows
     public static String getZkUrl() {
         ClassPathResource resource = new ClassPathResource(PROPERTIES_LOCATION);
         Properties properties = PropertiesLoaderUtils.loadProperties(resource);
-        return properties.getProperty(ZOOKEEPER_PATH, "127.0.0.1:2181");
+        return properties.getProperty(ZOOKEEPER_PATH, ZOOKEEPER_URL);
     }
 
     @SneakyThrows

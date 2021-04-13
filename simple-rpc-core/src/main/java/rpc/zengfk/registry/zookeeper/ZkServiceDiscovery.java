@@ -1,5 +1,4 @@
 package rpc.zengfk.registry.zookeeper;
-import rpc.zengfk.directory.RpcServiceDirectory;
 import rpc.zengfk.exception.RpcException;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +11,7 @@ import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.assertj.core.util.Lists;
 import org.springframework.util.CollectionUtils;
 import rpc.zengfk.registry.ServiceDiscovery;
+import rpc.zengfk.registry.RpcServiceDirectory;
 import rpc.zengfk.router.tag.model.Tag;
 import rpc.zengfk.utils.ZookeeperUtil;
 

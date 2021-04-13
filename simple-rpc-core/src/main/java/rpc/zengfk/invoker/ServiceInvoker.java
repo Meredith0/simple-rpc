@@ -1,7 +1,11 @@
 package rpc.zengfk.invoker;
 
 import lombok.extern.slf4j.Slf4j;
+import rpc.zengfk.exception.BusinessException;
 import rpc.zengfk.exception.RpcException;
+import rpc.zengfk.filter.FilterCache;
+import rpc.zengfk.filter.FilterChain;
+import rpc.zengfk.filter.lifecycle.ServerInvokedFilter;
 import rpc.zengfk.model.RpcRequest;
 import rpc.zengfk.provider.ServiceProvider;
 import rpc.zengfk.utils.SpringContextUtil;
@@ -44,9 +48,17 @@ public class ServiceInvoker implements Invoker {
         try {
             Method method = serviceBean.getClass().getMethod(req.getMethodName(), req.getParamTypes());
             res = method.invoke(serviceBean, req.getParameters());
-            log.debug("成功调用serviceBean!, serviceBean:{}", serviceBean);
+            //过滤器
+            FilterChain<ServerInvokedFilter> chain = FilterCache.get(ServerInvokedFilter.class);
+            chain.invokeChain(req, serviceBean);
+
+            log.debug("成功调用serviceBean! {}", serviceBean);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            throw new RpcException(e.getMessage(), e);
+            if (e.getCause() instanceof BusinessException) {
+                throw new BusinessException(e.getCause());
+            } else {
+                throw new RpcException(e.getMessage(), e);
+            }
         }
         return res;
     }

@@ -5,7 +5,14 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import rpc.zengfk.exception.BusinessException;
+import rpc.zengfk.exception.RpcException;
+import rpc.zengfk.filter.FilterCache;
+import rpc.zengfk.filter.FilterChain;
+import rpc.zengfk.filter.lifecycle.ServerReceivedFilter;
+import rpc.zengfk.filter.lifecycle.ServerSentFilter;
 import rpc.zengfk.invoker.ServiceInvoker;
 import rpc.zengfk.model.RpcRequest;
 import rpc.zengfk.model.RpcResponse;
@@ -26,22 +33,41 @@ public class RequestHandler extends SimpleChannelInboundHandler<RpcProtocol> {
             log.debug("RequestHandler响应心跳: {}...", protocol);
             return;
         }
-        log.info("RequestHandler接收到protocol: {} ", protocol);
+        //过滤器
+        FilterChain<ServerReceivedFilter> serverReceivedFilterChain = FilterCache.get(ServerReceivedFilter.class);
+        serverReceivedFilterChain.invokeChain(protocol, ctx);
+
+        log.debug("RequestHandler接收到protocol: {} ", protocol);
 
         RpcRequest rpcRequest = (RpcRequest) protocol.getData();
-        Object res = ServiceInvoker.getInstance().accept(rpcRequest);
+        RpcResponse rpcResponse = null;
+        try {
+            //调用服务
+            Object res = ServiceInvoker.getInstance().accept(rpcRequest);
+            rpcResponse = RpcResponse.forSuccess(rpcRequest.getRequestId(), res);
+        } catch (BusinessException | RpcException e) {
+            e.printStackTrace();
+            if (e instanceof BusinessException) {
+                rpcResponse = RpcResponse.forBusinessException(rpcRequest.getRequestId(), e.getMessage());
+            }
+            if (e instanceof RpcException) {
+                rpcResponse = RpcResponse.forServerError(rpcRequest.getRequestId(), e.getMessage());
+            }
+        }
         protocol.setType(RpcProtocol.TYPE_RESP);
-
         if (ctx.channel().isActive() && ctx.channel().isWritable()) {
-            RpcResponse rpcResponse = RpcResponse.forSuccess(rpcRequest.getRequestId(), res);
             protocol.setData(rpcResponse);
         } else {
-            RpcResponse rpcResponse = RpcResponse.forClientErrors(rpcRequest.getRequestId());
+            rpcResponse = RpcResponse.forClientError(rpcRequest.getRequestId());
             protocol.setData(rpcResponse);
             log.error("channel is NOT writable, protocol dropped {}", protocol);
         }
 
         ctx.writeAndFlush(protocol).addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
+
+        //过滤器
+        FilterChain<ServerSentFilter> serverSentFilterChain = FilterCache.get(ServerSentFilter.class);
+        serverSentFilterChain.invokeChain(protocol, rpcResponse);
     }
 
     @Override
@@ -59,7 +85,7 @@ public class RequestHandler extends SimpleChannelInboundHandler<RpcProtocol> {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        log.error("RequestHandler catches exception");
+        log.error("RequestHandler catches exception: ");
         cause.printStackTrace();
         ctx.close();
     }

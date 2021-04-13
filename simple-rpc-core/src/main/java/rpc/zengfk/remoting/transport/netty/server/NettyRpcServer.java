@@ -79,7 +79,7 @@ public class NettyRpcServer {
             // 绑定端口，同步等待绑定成功
             ChannelFuture cf = bootstrap.bind(host, Integer.parseInt(PORT)).sync();
             //注册上线
-            registerOnline();
+            registerMetadata();
             log.info("****************** netty-rpc-server 上线成功! ******************");
 
             // 等待服务端监听端口关闭
@@ -93,8 +93,8 @@ public class NettyRpcServer {
         }
     }
 
-    private void registerOnline() {
-        //该服务仅为上线标志, 不可实际调用
-        serviceProvider.publish(new Object(), "netty-rpc-server", "1.0.0","srpc");
+    private void registerMetadata() {
+        //注册元数据
+        serviceProvider.publish(new Object(), "simple-rpc", "1.0.0","srpc");
     }
 }

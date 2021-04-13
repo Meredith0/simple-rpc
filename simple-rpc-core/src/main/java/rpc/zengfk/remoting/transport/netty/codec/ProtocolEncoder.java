@@ -40,7 +40,7 @@ public class ProtocolEncoder extends MessageToByteEncoder<RpcProtocol> {
             out.writeByte(protocol.getSerializer());
             out.writeInt(protocol.getSeqNo());
 
-            byte[] body = null;
+            byte[] body;
             int length = RpcProtocol.HEADER_LENGTH;
             // 非心跳请求才有 body
             if (type != RpcProtocol.TYPE_HEARTBEAT_PING && type != RpcProtocol.TYPE_HEARTBEAT_PONG) {

@@ -8,6 +8,10 @@ import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import rpc.zengfk.filter.FilterCache;
+import rpc.zengfk.filter.FilterChain;
+import rpc.zengfk.filter.lifecycle.ClientReceivedFilter;
+import rpc.zengfk.filter.lifecycle.ClientSentFilter;
 import rpc.zengfk.model.RpcResponse;
 import rpc.zengfk.protocol.RpcProtocol;
 import rpc.zengfk.remoting.transport.netty.client.FutureBuffer;
@@ -31,6 +35,10 @@ public class ResponseHandler extends SimpleChannelInboundHandler<RpcProtocol> {
      */
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, RpcProtocol protocol) {
+        //过滤器
+        FilterChain<ClientReceivedFilter> chain = FilterCache.get(ClientReceivedFilter.class);
+        chain.invokeChain(protocol, ctx);
+
         log.debug("ResponseHandler接受到protocol:{}", protocol);
         assert protocol != null;
         if (protocol.isHeartbeat()) {
@@ -59,7 +67,7 @@ public class ResponseHandler extends SimpleChannelInboundHandler<RpcProtocol> {
                     .compressor(RpcProtocol.COMPRESSION_GZIP)
                     .serializer(RpcProtocol.SERIALIZER_PROTOSTUFF)
                     .build();
-                log.info("10s内无请求发起, 发送心跳包:{}至...{}", protocol, server);
+                log.debug("10s内无请求发起, 发送心跳包:{}至...{}", protocol, server);
                 channel.writeAndFlush(protocol)
                     //如果心跳包出错, 则关闭channel FIXME 心跳失败策略
                     .addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
@@ -70,9 +78,9 @@ public class ResponseHandler extends SimpleChannelInboundHandler<RpcProtocol> {
         }
     }
 
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        log.error("RequestHandler catches exception:{}", cause.getMessage());
-        ctx.close();
-    }
+    // @Override
+    // public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+    //     log.error("RequestHandler catches exception:{}", cause.getMessage());
+    //     ctx.close();
+    // }
 }

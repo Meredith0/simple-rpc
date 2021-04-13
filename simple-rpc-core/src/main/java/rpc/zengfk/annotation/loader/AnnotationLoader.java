@@ -7,8 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import rpc.zengfk.annotation.RpcFilter;
 import rpc.zengfk.annotation.RpcReference;
 import rpc.zengfk.annotation.RpcService;
+import rpc.zengfk.filter.Filter;
+import rpc.zengfk.filter.FilterCache;
 import rpc.zengfk.model.Service;
 import rpc.zengfk.provider.ServiceProvider;
 import rpc.zengfk.proxy.RpcRequestProxy;
@@ -43,6 +46,10 @@ public class AnnotationLoader implements BeanPostProcessor {
             registerService(bean);
         }
 
+        if (bean.getClass().isAnnotationPresent(RpcFilter.class) && bean instanceof Filter) {
+            registerFilter((Filter<?,?>) bean);
+        }
+
         Field[] declaredFields = bean.getClass().getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(RpcReference.class)) {
@@ -54,6 +61,11 @@ public class AnnotationLoader implements BeanPostProcessor {
         return bean;
     }
 
+    private void registerFilter(Filter<?, ?> bean) {
+        Class<?> lifecycleFilterClassname = bean.getClass().getSuperclass();
+        FilterCache.add(lifecycleFilterClassname, bean);
+    }
+
     @SneakyThrows
     private void registerService(Object bean) {
         RpcService annotation = bean.getClass().getAnnotation(RpcService.class);
@@ -61,7 +73,7 @@ public class AnnotationLoader implements BeanPostProcessor {
         if (StringUtils.isEmpty(serviceName)) {
             serviceName = bean.getClass().getName();
         }
-        provider.publish(bean, serviceName, annotation.version(),annotation.tag());
+        provider.publish(bean, serviceName, annotation.version(), annotation.tag());
     }
 
     @SneakyThrows
@@ -69,7 +81,7 @@ public class AnnotationLoader implements BeanPostProcessor {
         RpcReference annotation = field.getAnnotation(RpcReference.class);
 
         Service service = new Service(annotation.name(), annotation.version(), new Tag(annotation.tag()));
-        
+
         //动态代理
         RpcRequestProxy proxy = new RpcRequestProxy(transport, service);
         return proxy.newProxyInstance(field.getType());

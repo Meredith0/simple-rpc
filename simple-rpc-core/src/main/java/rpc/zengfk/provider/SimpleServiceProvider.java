@@ -29,7 +29,7 @@ public class SimpleServiceProvider implements ServiceProvider{
 
     private final ServiceRegistry registry;
     /**
-     * key: Service, 即服务名+版本号  value: serviceBean
+     * key: Service, 即服务名+版本号+tag  value: serviceBean
      */
     private static final Map<Service, Object> PUBLISHED_SERVICE = Maps.newConcurrentMap();
 
@@ -50,7 +50,7 @@ public class SimpleServiceProvider implements ServiceProvider{
         Service serviceKey = new Service(serviceName, version, tag);
         PUBLISHED_SERVICE.put(serviceKey, serviceBean);
 
-        log.info("成功暴露服务:{}", serviceName);
+        log.info("成功注册服务:{}", serviceInstance);
     }
 
     @Override

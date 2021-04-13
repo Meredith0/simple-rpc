@@ -22,6 +22,7 @@
 
 ![生命周期图](./doc/images/rpcLifecycle.png)
 
+- 链路跟踪: 支持OpenTracing规范
 
 ## Getting started
 ```shell

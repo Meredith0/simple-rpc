@@ -5,6 +5,10 @@ import rpc.zengfk.enums.RpcResponseEnum;
 import rpc.zengfk.exception.RpcException;
 import rpc.zengfk.extension.ExtensionLoader;
 import rpc.zengfk.extension.ExtensionName;
+import rpc.zengfk.filter.Filter;
+import rpc.zengfk.filter.FilterCache;
+import rpc.zengfk.filter.FilterChain;
+import rpc.zengfk.filter.lifecycle.ClientInvokedFilter;
 import rpc.zengfk.model.RpcRequest;
 import rpc.zengfk.model.RpcResponse;
 import rpc.zengfk.model.Service;
@@ -48,6 +52,10 @@ public class RpcRequestProxy implements Proxy {
     private Object doProxy(Method method, Object[] args) throws Throwable {
         String requestId = UUID.randomUUID().toString();
         log.info("发起rpc请求, requestId:{}", requestId);
+
+        //过滤器
+        FilterChain<ClientInvokedFilter> chain = FilterCache.get(ClientInvokedFilter.class);
+        chain.invokeChain(method, args);
 
         RpcRequest rpcRequest = RpcRequest.builder()
             .requestId(requestId)

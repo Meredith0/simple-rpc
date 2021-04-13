@@ -1,4 +1,4 @@
-package rpc.zengfk.directory;
+package rpc.zengfk.registry;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import java.util.List;

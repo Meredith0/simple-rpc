@@ -7,4 +7,6 @@ package rpc.zengfk.service;
 public interface HelloService {
 
     String sayHello(String str);
+
+    String testBusinessException(String err);
 }

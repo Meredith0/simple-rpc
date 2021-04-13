@@ -5,7 +5,7 @@ import lombok.*;
 import java.net.InetSocketAddress;
 
 /**
- * 协议，定义了一个暴露的服务
+ * 定义了一个暴露的服务
  *
  * @author zeng.fk
  * 2021-04-01 20:04

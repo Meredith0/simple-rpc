@@ -20,6 +20,7 @@ import java.lang.reflect.Method;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE})
 @Inherited
+@Component
 public @interface RpcService {
 
     /**

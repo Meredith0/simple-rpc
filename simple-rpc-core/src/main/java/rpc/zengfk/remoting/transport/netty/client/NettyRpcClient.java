@@ -12,7 +12,9 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import rpc.zengfk.exception.RpcException;
-import rpc.zengfk.extension.ExtensionName;
+import rpc.zengfk.filter.FilterCache;
+import rpc.zengfk.filter.FilterChain;
+import rpc.zengfk.filter.lifecycle.ClientSentFilter;
 import rpc.zengfk.model.RpcRequest;
 import rpc.zengfk.model.RpcResponse;
 import rpc.zengfk.model.ServiceInstance;
@@ -54,7 +56,7 @@ public final class NettyRpcClient implements RpcTransport {
                 protected void initChannel(SocketChannel ch) {
                     ChannelPipeline p = ch.pipeline();
                     //如果10秒内没有请求, 发送一个心跳包
-                    p.addLast(new IdleStateHandler(0, 5, 0, TimeUnit.SECONDS));
+                    p.addLast(new IdleStateHandler(0, 10, 0, TimeUnit.SECONDS));
                     p.addLast(new ProtocolEncoder());
                     p.addLast(new ProtocolDecoder());
                     p.addLast(new ResponseHandler());//响应处理器
@@ -82,15 +84,19 @@ public final class NettyRpcClient implements RpcTransport {
             channel.writeAndFlush(protocol)
                 .addListener((ChannelFutureListener) future -> {
                     if (future.isSuccess()) {
-                        log.debug("客户端封装协议并发送成功! protocol:{}", protocol);
+                        //过滤器
+                        FilterChain<ClientSentFilter> chain = FilterCache.get(ClientSentFilter.class);
+                        chain.invokeChain(protocol, serviceInstance);
+
+                        log.debug("client sent successfully! protocol:{}", protocol);
                     } else {
                         future.channel().close();
                         responseFuture.completeExceptionally(future.cause());
-                        log.error("客户端发送协议失败:", future.cause());
+                        log.error("error occurs when sending protocol:", future.cause());
                     }
                 });
         } else {
-            throw new RpcException("服务端channel关闭");
+            throw new RpcException("server side channel closed");
         }
         return responseFuture;
     }
@@ -109,7 +115,7 @@ public final class NettyRpcClient implements RpcTransport {
         CompletableFuture<Channel> completableFuture = new CompletableFuture<>();
         bootstrap.connect(inetSocketAddress).addListener((ChannelFutureListener) future -> {
             if (future.isSuccess()) {
-                log.info("客户端连接成功! ip:{}", inetSocketAddress.toString());
+                log.debug("客户端已连接至 ip:{}", inetSocketAddress.toString());
                 completableFuture.complete(future.channel());
             }
             else {
