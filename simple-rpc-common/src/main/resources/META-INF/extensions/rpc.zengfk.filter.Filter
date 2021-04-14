@@ -1,2 +1,2 @@
-clientInvokedFilter=rpc.zengfk.filter.impl.AccessLogFilter
-clientReceivedFilter=rpc.zengfk.filter.impl.ExceptionFilter
+clientInvokedFilter=rpc.simple.filter.impl.AccessLogFilter
+clientReceivedFilter=rpc.simple.filter.impl.ExceptionFilter

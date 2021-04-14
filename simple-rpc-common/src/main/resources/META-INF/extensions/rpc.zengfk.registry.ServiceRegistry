@@ -1,1 +1,1 @@
-registry-zk=rpc.zengfk.registry.zookeeper.ZkServiceRegistry
+registry-zk=rpc.simple.registry.zookeeper.ZkServiceRegistry

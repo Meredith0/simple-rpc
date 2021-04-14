@@ -1,1 +1,1 @@
-discovery-zk=rpc.zengfk.registry.zookeeper.ZkServiceDiscovery
+discovery-zk=rpc.simple.registry.zookeeper.ZkServiceDiscovery

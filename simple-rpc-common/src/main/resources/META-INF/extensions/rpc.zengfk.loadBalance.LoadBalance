@@ -1,1 +1,1 @@
-consistentHash=rpc.zengfk.loadBalance.balancer.ConsistentHashLoadBalance
+consistentHash=rpc.simple.loadBalance.balancer.ConsistentHashLoadBalance

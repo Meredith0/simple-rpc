@@ -1,1 +1,1 @@
-protostuff=rpc.zengfk.serialize.protostuff.ProtostuffSerializer
+protostuff=rpc.simple.serialize.protostuff.ProtostuffSerializer

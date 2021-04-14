@@ -1,1 +1,1 @@
-gzip=rpc.zengfk.remoting.compression.gzip.GzipCompressor
+gzip=rpc.simple.remoting.compression.gzip.GzipCompressor

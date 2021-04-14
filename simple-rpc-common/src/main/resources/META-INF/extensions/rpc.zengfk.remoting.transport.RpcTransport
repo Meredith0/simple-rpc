@@ -1,1 +1,1 @@
-netty=rpc.zengfk.remoting.transport.netty.client.NettyRpcClient
+netty=rpc.simple.remoting.transport.netty.client.NettyRpcClient

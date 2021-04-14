@@ -1,1 +1,1 @@
-tagRouter=rpc.zengfk.router.tag.TagRouter
+tagRouter=rpc.simple.router.tag.TagRouter
