@@ -51,6 +51,7 @@ public class RpcProtocol {
     private byte type;
     private byte serializer;
     private byte compressor;
+    private byte failStrategy;
     //FIXME requestId 暂未启用, 暂以 data 中的 uuid 代替
     private int seqNo;
     //request data

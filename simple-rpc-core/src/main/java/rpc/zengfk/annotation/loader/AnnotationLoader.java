@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import rpc.zengfk.annotation.FailStrategy;
 import rpc.zengfk.annotation.RpcFilter;
 import rpc.zengfk.annotation.RpcReference;
 import rpc.zengfk.annotation.RpcService;
@@ -17,6 +18,7 @@ import rpc.zengfk.provider.ServiceProvider;
 import rpc.zengfk.proxy.RpcRequestProxy;
 import rpc.zengfk.remoting.transport.RpcTransport;
 import rpc.zengfk.router.tag.model.Tag;
+import rpc.zengfk.support.FailStrategyCache;
 
 import java.lang.reflect.Field;
 
@@ -35,9 +37,6 @@ public class AnnotationLoader implements BeanPostProcessor {
     @Autowired
     private RpcTransport transport;
 
-    // public AnnotationLoader() {
-    //     this.transport = ExtensionLoader.ofType(RpcTransport.class).getExtension(ExtensionNameEnum.TRANSPORT.getName());
-    // }
 
     @SneakyThrows
     @Override
@@ -46,8 +45,12 @@ public class AnnotationLoader implements BeanPostProcessor {
             registerService(bean);
         }
 
-        if (bean.getClass().isAnnotationPresent(RpcFilter.class) && bean instanceof Filter) {
+        else if (bean.getClass().isAnnotationPresent(RpcFilter.class) && bean instanceof Filter) {
             registerFilter((Filter<?,?>) bean);
+        }
+
+        else if (bean.getClass().isAnnotationPresent(FailStrategy.class)) {
+            registerFailStrategy(bean);
         }
 
         Field[] declaredFields = bean.getClass().getDeclaredFields();
@@ -61,9 +64,18 @@ public class AnnotationLoader implements BeanPostProcessor {
         return bean;
     }
 
+    private void registerFailStrategy(Object bean) {
+        Class<?> strategyClass = bean.getClass();
+        if (bean instanceof FailStrategy) {
+            FailStrategyCache.add(strategyClass, (rpc.zengfk.support.FailStrategy) bean);
+        }
+    }
+
     private void registerFilter(Filter<?, ?> bean) {
-        Class<?> lifecycleFilterClassname = bean.getClass().getSuperclass();
-        FilterCache.add(lifecycleFilterClassname, bean);
+        Class<?> lifecycleFilterClass = bean.getClass().getSuperclass();
+        RpcFilter annotation = bean.getClass().getAnnotation(RpcFilter.class);
+        int priority = annotation.priority();
+        FilterCache.add(lifecycleFilterClass, bean, priority);
     }
 
     @SneakyThrows
