@@ -13,6 +13,6 @@ public abstract class ServerInvokedFilter extends BreakableFilter<RpcRequest, Ob
 
     @Override
     protected Object[] filter(RpcRequest rpcRequest, Object serviceBean) {
-        return apply(rpcRequest, serviceBean);
+        return apply(rpcRequest, serviceBean, false);
     }
 }

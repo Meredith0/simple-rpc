@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
  * @author zeng.fk
  * 2021-04-12 19:28
  */
-public class FilterChain<T> {
+public class FilterChain {
 
     Deque<FilterNode> chain;
 
@@ -18,9 +18,7 @@ public class FilterChain<T> {
     }
 
     public void add(FilterNode node) {
-        if (node != null) {
-            chain.add(node);
-        }
+        chain.add(node);
         sort();
     }
 
@@ -34,15 +32,15 @@ public class FilterChain<T> {
     }
 
     public void invokeChain(Object... args) {
-        chain.forEach(
-            filterNode -> {
-                Filter<?, ?> filter = filterNode.getFilter();
-                if (filter instanceof BreakableFilter) {
-                    Object[] res = ((BreakableFilter) filter).apply(args[0], args[1]);
-                    args[0] = res[0];
-                    args[1] = res[1];
-                }
+        Boolean isBreak = false;
+        for (FilterNode filterNode : chain) {
+            Filter<?, ?> filter = filterNode.getFilter();
+            if (filter instanceof BreakableFilter) {
+                Object[] res = ((BreakableFilter) filter).apply(args[0], args[1], isBreak);
+                args[0] = res[0];
+                args[1] = res[1];
+                isBreak = (Boolean) res[2];
             }
-        );
+        }
     }
 }

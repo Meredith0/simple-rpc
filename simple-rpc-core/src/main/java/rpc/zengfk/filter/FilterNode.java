@@ -1,6 +1,5 @@
 package rpc.zengfk.filter;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class FilterNode {
 
     private static final int DEFAULT_PRIORITY = 4;
@@ -25,15 +23,21 @@ public class FilterNode {
      */
     private int priority;
 
-    public FilterNode(Filter filter) {
+    public FilterNode(Filter filter, int priority) {
         this.filter = filter;
-        this.setPriority(DEFAULT_PRIORITY);
+        this.setPriority(priority);
     }
 
     public void setPriority(int priority) {
-        if (priority < 0 || priority > 10) {
-            throw new IllegalArgumentException("priority必须在0-10之间");
+        this.priority = normalize(priority);
+    }
+
+    private int normalize(int priority) {
+        if (priority < 0) {
+            priority = 0;
+        } else if (priority > 10) {
+            priority = 10;
         }
-        this.priority = priority;
+        return priority;
     }
 }

@@ -17,23 +17,23 @@ public class FilterCache {
     /**
      * key: lifecycle filter classname, value: FilterChain
      */
-    private static final Map<Class<?>, FilterChain<?>> CACHE_MAP = Maps.newConcurrentMap();
+    private static final Map<Class<? extends Filter<?,?>>, FilterChain> CACHE_MAP = Maps.newConcurrentMap();
 
     @SneakyThrows
-    public static void add(Class<?> name, Object filter) {
+    public static void add(Class<?> name, Object filter,int priority) {
         if (!(filter instanceof Filter)) {
             throw new IllegalStateException(filter + " is NOT instanceof rpc.zengfk.filter.Filter");
         }
-        FilterChain<?> chain = CACHE_MAP.get(name);
+        FilterChain chain = CACHE_MAP.get(name);
         if (chain == null) {
             chain = new FilterChain();
         }
-        chain.add(new FilterNode((Filter) filter));
-        CACHE_MAP.put(name, chain);
+        chain.add(new FilterNode((Filter<?,?>) filter, priority));
+        CACHE_MAP.put((Class<? extends Filter<?, ?>>) name, chain);
     }
 
-    public static <T> FilterChain<T> get(Class<T> name) {
+    public static FilterChain get(Class<? extends Filter<?,?>> name) {
 
-        return (FilterChain<T>) CACHE_MAP.getOrDefault(name, new FilterChain<>());
+        return CACHE_MAP.getOrDefault(name, new FilterChain());
     }
 }

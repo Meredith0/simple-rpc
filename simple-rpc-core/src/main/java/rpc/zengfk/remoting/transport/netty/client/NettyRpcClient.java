@@ -85,7 +85,7 @@ public final class NettyRpcClient implements RpcTransport {
                 .addListener((ChannelFutureListener) future -> {
                     if (future.isSuccess()) {
                         //过滤器
-                        FilterChain<ClientSentFilter> chain = FilterCache.get(ClientSentFilter.class);
+                        FilterChain chain = FilterCache.get(ClientSentFilter.class);
                         chain.invokeChain(protocol, serviceInstance);
 
                         log.debug("client sent successfully! protocol:{}", protocol);

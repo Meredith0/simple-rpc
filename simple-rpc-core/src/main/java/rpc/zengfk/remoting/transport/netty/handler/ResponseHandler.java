@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 import rpc.zengfk.filter.FilterCache;
 import rpc.zengfk.filter.FilterChain;
 import rpc.zengfk.filter.lifecycle.ClientReceivedFilter;
-import rpc.zengfk.filter.lifecycle.ClientSentFilter;
 import rpc.zengfk.model.RpcResponse;
 import rpc.zengfk.protocol.RpcProtocol;
 import rpc.zengfk.remoting.transport.netty.client.FutureBuffer;
@@ -35,16 +34,17 @@ public class ResponseHandler extends SimpleChannelInboundHandler<RpcProtocol> {
      */
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, RpcProtocol protocol) {
-        //过滤器
-        FilterChain<ClientReceivedFilter> chain = FilterCache.get(ClientReceivedFilter.class);
-        chain.invokeChain(protocol, ctx);
-
-        log.debug("ResponseHandler接受到protocol:{}", protocol);
         assert protocol != null;
         if (protocol.isHeartbeat()) {
             log.debug("received heartbeat pong");
             return;
         }
+        log.debug("ResponseHandler接受到protocol:{}", protocol);
+
+        //过滤器
+        FilterChain chain = FilterCache.get(ClientReceivedFilter.class);
+        chain.invokeChain(protocol, ctx);
+
         RpcResponse rpcResponse = (RpcResponse) protocol.getData();
         FutureBuffer.complete(rpcResponse);
     }
@@ -58,8 +58,7 @@ public class ResponseHandler extends SimpleChannelInboundHandler<RpcProtocol> {
             IdleState state = ((IdleStateEvent) evt).state();
             if (state == IdleState.WRITER_IDLE) {
                 InetSocketAddress server = (InetSocketAddress) ctx.channel().remoteAddress();
-
-                Channel channel = null;
+                Channel channel;
                 NettyRpcClient nettyRpcClient = (NettyRpcClient) SpringContextUtil.getBean("nettyRpcClient");
                 channel = nettyRpcClient.getServerChannel(server);
                 RpcProtocol protocol = RpcProtocol.builder()

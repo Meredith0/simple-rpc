@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import java.lang.annotation.*;
 
 /**
- * 标记一个过滤器
+ * rpc请求生命周期过滤器
  *
  * @author zeng.fk
  * 2021-04-12 19:51
@@ -16,4 +16,9 @@ import java.lang.annotation.*;
 @Inherited
 @Component
 public @interface RpcFilter {
+
+    /**
+     * 优先级, 0-10
+     */
+    int priority() default 4;
 }

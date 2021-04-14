@@ -13,6 +13,6 @@ import rpc.zengfk.protocol.RpcProtocol;
 public abstract class ServerSentFilter extends BreakableFilter<RpcProtocol, RpcResponse> {
 
     public Object[] filter(RpcProtocol rpcProtocol, RpcResponse rpcResponse) {
-        return apply(rpcProtocol, rpcResponse);
+        return apply(rpcProtocol, rpcResponse, false);
     }
 }

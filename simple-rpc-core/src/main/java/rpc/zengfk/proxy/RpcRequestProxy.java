@@ -5,9 +5,9 @@ import rpc.zengfk.enums.RpcResponseEnum;
 import rpc.zengfk.exception.RpcException;
 import rpc.zengfk.extension.ExtensionLoader;
 import rpc.zengfk.extension.ExtensionName;
-import rpc.zengfk.filter.Filter;
 import rpc.zengfk.filter.FilterCache;
 import rpc.zengfk.filter.FilterChain;
+import rpc.zengfk.filter.lifecycle.ClientBeforeSendFilter;
 import rpc.zengfk.filter.lifecycle.ClientInvokedFilter;
 import rpc.zengfk.model.RpcRequest;
 import rpc.zengfk.model.RpcResponse;
@@ -54,8 +54,8 @@ public class RpcRequestProxy implements Proxy {
         log.info("发起rpc请求, requestId:{}", requestId);
 
         //过滤器
-        FilterChain<ClientInvokedFilter> chain = FilterCache.get(ClientInvokedFilter.class);
-        chain.invokeChain(method, args);
+        FilterChain clientInvokedFilter = FilterCache.get(ClientInvokedFilter.class);
+        clientInvokedFilter.invokeChain(method, args);
 
         RpcRequest rpcRequest = RpcRequest.builder()
             .requestId(requestId)
@@ -66,30 +66,29 @@ public class RpcRequestProxy implements Proxy {
             .build();
 
         //服务发现
-        List<ServiceInstance> serviceInstancePool = serviceDiscovery.lookup(rpcRequest.getService());
+        List<ServiceInstance> serviceInstancePool = serviceDiscovery.lookup(service);
 
         //路由, 负载均衡
         ServiceInstance routedService = router.route(serviceInstancePool, service.getTag());
+
+        //过滤器, 用于容错机制
+        FilterChain clientBeforeSendFilter = FilterCache.get(ClientBeforeSendFilter.class);
+        clientBeforeSendFilter.invokeChain(rpcRequest, routedService);
 
         //发送请求
         CompletableFuture<RpcResponse> future =
             (CompletableFuture<RpcResponse>) rpcTransport.sendAsync(rpcRequest, routedService);
         //阻塞
         RpcResponse rpcResponse = future.get();
-        //todo 容错机制
-        checkResponse(rpcRequest, rpcResponse);
         return rpcResponse.getData();
     }
 
     private void checkResponse(RpcRequest request, RpcResponse response) {
         if (response == null) {
-            throw new RpcException("rpc请求返回为null, request:{ %s }", request);
+            throw new RpcException("rpc response is null, request:{ %s }", request);
         }
         if (!Objects.equals(request.getRequestId(), response.getRequestId())) {
-            throw new RpcException("requestId不匹配, request:{ %s }, response:{ %s }", request, response);
-        }
-        if (response.getCode() == null || !response.getCode().equals(RpcResponseEnum.SUCCESS.getCode())) {
-            throw new RpcException("服务调用失败, request:{ %s }, response:{ %s }", request, response);
+            throw new RpcException("requestId not match, request:{ %s }, response:{ %s }", request, response);
         }
     }
 

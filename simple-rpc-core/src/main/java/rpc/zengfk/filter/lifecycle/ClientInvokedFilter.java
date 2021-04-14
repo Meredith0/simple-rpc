@@ -13,6 +13,6 @@ import java.lang.reflect.Method;
 public abstract class ClientInvokedFilter extends BreakableFilter<Method, Object[]> {
 
     public Object[] filter(Method method, Object[] args) {
-        return apply(method, args);
+        return apply(method, args, false);
     }
 }

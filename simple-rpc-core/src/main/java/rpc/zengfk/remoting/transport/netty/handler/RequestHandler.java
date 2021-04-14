@@ -5,7 +5,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import rpc.zengfk.exception.BusinessException;
 import rpc.zengfk.exception.RpcException;
@@ -34,7 +33,7 @@ public class RequestHandler extends SimpleChannelInboundHandler<RpcProtocol> {
             return;
         }
         //过滤器
-        FilterChain<ServerReceivedFilter> serverReceivedFilterChain = FilterCache.get(ServerReceivedFilter.class);
+        FilterChain serverReceivedFilterChain = FilterCache.get(ServerReceivedFilter.class);
         serverReceivedFilterChain.invokeChain(protocol, ctx);
 
         log.debug("RequestHandler接收到protocol: {} ", protocol);
@@ -66,7 +65,7 @@ public class RequestHandler extends SimpleChannelInboundHandler<RpcProtocol> {
         ctx.writeAndFlush(protocol).addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
 
         //过滤器
-        FilterChain<ServerSentFilter> serverSentFilterChain = FilterCache.get(ServerSentFilter.class);
+        FilterChain serverSentFilterChain = FilterCache.get(ServerSentFilter.class);
         serverSentFilterChain.invokeChain(protocol, rpcResponse);
     }
 

@@ -8,6 +8,9 @@ import rpc.zengfk.exception.RpcException;
 import rpc.zengfk.filter.lifecycle.ClientReceivedFilter;
 import rpc.zengfk.model.RpcResponse;
 import rpc.zengfk.protocol.RpcProtocol;
+import rpc.zengfk.support.FailStrategy;
+import rpc.zengfk.support.FailStrategyCache;
+import rpc.zengfk.support.enums.FailStrategyEnum;
 
 /**
  * @author zeng.fk
@@ -28,7 +31,7 @@ public class ExceptionFilter extends ClientReceivedFilter {
                 throw new RpcException("BAD CLIENT");
 
             case RpcResponse.SERVER_ERRORS:
-                throw new RpcException("BAD SERVER");
+                doFailStrategy(rpcProtocol);
 
             case RpcResponse.BUSINESS_EXCEPTION:
                 throw new BusinessException(response.toString());
@@ -37,5 +40,15 @@ public class ExceptionFilter extends ClientReceivedFilter {
                 throw new IllegalStateException();
         }
         return new Object[]{rpcProtocol, channelHandlerContext};
+    }
+
+    private void doFailStrategy(RpcProtocol rpcProtocol) {
+        byte code = rpcProtocol.getFailStrategy();
+        FailStrategy failStrategy = FailStrategyCache.get(FailStrategyEnum.get(code));
+        failStrategy.process(rpcProtocol);
+    }
+
+    private Object handleBusinessException(RpcResponse response) {
+        return null;
     }
 }

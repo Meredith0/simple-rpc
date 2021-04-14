@@ -13,6 +13,6 @@ import rpc.zengfk.protocol.RpcProtocol;
 public abstract class ServerReceivedFilter extends BreakableFilter<RpcProtocol, ChannelHandlerContext> {
 
     public Object[] filter(RpcProtocol rpcProtocol, ChannelHandlerContext serviceInstance) {
-        return apply(rpcProtocol, serviceInstance);
+        return apply(rpcProtocol, serviceInstance, false);
     }
 }

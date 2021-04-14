@@ -49,7 +49,7 @@ public class ServiceInvoker implements Invoker {
             Method method = serviceBean.getClass().getMethod(req.getMethodName(), req.getParamTypes());
             res = method.invoke(serviceBean, req.getParameters());
             //过滤器
-            FilterChain<ServerInvokedFilter> chain = FilterCache.get(ServerInvokedFilter.class);
+            FilterChain chain = FilterCache.get(ServerInvokedFilter.class);
             chain.invokeChain(req, serviceBean);
 
             log.debug("成功调用serviceBean! {}", serviceBean);
