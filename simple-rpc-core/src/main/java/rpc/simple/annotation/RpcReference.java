@@ -6,6 +6,7 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.function.BiConsumer;
 
 /**
  *  标注某个方法为远程方法, 该方法的调用会被RpcClientProxy代理
@@ -33,6 +34,8 @@ public @interface RpcReference {
      * 路由键
      */
     String tag() default "";
+
+    BiConsumer<?, ?> callback = null;
 
     @Deprecated
     byte failStrategy() default (byte)0x01;

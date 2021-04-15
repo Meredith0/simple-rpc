@@ -18,7 +18,7 @@ import rpc.simple.annotation.SPI;
  * 扩展类加载器, 参考了dubbo, 提供了对@SPI的接口的自定义实现类的加载
  * eg: LoadBalance接口, 本框架仅实现了一致性哈希和随机
  * 如果用户需要其他负载均衡算法, 可以自行实现LoadBalance, 然后在META-INF/extensions/下添加
- * 文件名:rpc.zengfk.loadBalance.LoadBalance
+ * 文件名:rpc.simple.loadBalance.LoadBalance
  * 内容:${ExtensionNameEnum.xxx.getName}=xxx.xxx.xxx.LoadBalanceImpl
  * @author zeng.fk
  *     2021-04-04 22:31

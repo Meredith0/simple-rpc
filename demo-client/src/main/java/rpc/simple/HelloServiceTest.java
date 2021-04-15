@@ -1,5 +1,6 @@
 package rpc.simple;
 
+import com.sun.org.apache.bcel.internal.generic.BIPUSH;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import java.util.Scanner;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
 
 /**
  * @author zeng.fk
@@ -31,6 +33,14 @@ public class HelloServiceTest {
         String res = helloService.sayHello("foo");
         log.info("============= 测试正常rpc调用, 返回结果{} =============", res);
     }
+
+    private void rpcSayHelloAsync() {
+        String res = helloService.sayHelloAsync("foo",(o,o1)->{
+            log.info("{},{}", o, o1);
+        });
+    }
+
+
 
     private void testErrorRpc() {
         String res = helloService.testBusinessException("business exception occurs...");

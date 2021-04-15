@@ -54,13 +54,13 @@ public class ExtensionName {
             }
         }
         printLog();
-        REGISTRY = CONFIG_MAP.getOrDefault("rpc.zengfk.registry.ServiceRegistry", "registry-zk");
-        DISCOVERY = CONFIG_MAP.getOrDefault("rpc.zengfk.registry.ServiceDiscovery", "discovery-zk");
-        LOAD_BALANCE = CONFIG_MAP.getOrDefault("rpc.zengfk.loadBalance.LoadBalance", "consistentHash");
-        COMPRESSOR = CONFIG_MAP.getOrDefault("rpc.zengfk.remoting.compression.Compressor", "gzip");
-        TRANSPORT = CONFIG_MAP.getOrDefault("rpc.zengfk.remoting.transport.RpcTransport", "netty");
-        SERIALIZER = CONFIG_MAP.getOrDefault("rpc.zengfk.serialize.Serializer", "protostuff");
-        ROUTER = CONFIG_MAP.getOrDefault("rpc.zengfk.router.Router", "tagRouter");
+        REGISTRY = CONFIG_MAP.getOrDefault("rpc.simple.registry.ServiceRegistry", "registry-zk");
+        DISCOVERY = CONFIG_MAP.getOrDefault("rpc.simple.registry.ServiceDiscovery", "discovery-zk");
+        LOAD_BALANCE = CONFIG_MAP.getOrDefault("rpc.simple.loadBalance.LoadBalance", "consistentHash");
+        COMPRESSOR = CONFIG_MAP.getOrDefault("rpc.simple.remoting.compression.Compressor", "gzip");
+        TRANSPORT = CONFIG_MAP.getOrDefault("rpc.simple.remoting.transport.RpcTransport", "netty");
+        SERIALIZER = CONFIG_MAP.getOrDefault("rpc.simple.serialize.Serializer", "protostuff");
+        ROUTER = CONFIG_MAP.getOrDefault("rpc.simple.router.Router", "tagRouter");
     }
 
     public static void printLog() {

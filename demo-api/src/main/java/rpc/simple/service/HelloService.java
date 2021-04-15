@@ -1,5 +1,7 @@
 package rpc.simple.service;
 
+import java.util.function.BiConsumer;
+
 /**
  * @author zeng.fk
  * 2021-04-06 23:06
@@ -7,6 +9,9 @@ package rpc.simple.service;
 public interface HelloService {
 
     String sayHello(String str);
+
+    String sayHelloAsync(String str, BiConsumer<?, ?> callback);
+
 
     String testBusinessException(String err);
 }
