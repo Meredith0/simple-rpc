@@ -1,6 +1,5 @@
 package rpc.simple;
 
-import com.sun.org.apache.bcel.internal.generic.BIPUSH;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,13 +7,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import rpc.simple.annotation.RpcReference;
 import rpc.simple.service.HelloService;
+import rpc.simple.support.enums.FailStrategyEnum;
 
 import javax.annotation.PostConstruct;
 import java.util.Scanner;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.function.BiConsumer;
 
 /**
  * @author zeng.fk
@@ -24,7 +23,7 @@ import java.util.function.BiConsumer;
 @Component
 public class HelloServiceTest {
 
-    @RpcReference(name = "helloService")
+    @RpcReference(name = "helloService",failStrategy = FailStrategyEnum.FAIL_OVER)
     private HelloService helloService;
     @Autowired
     HelloServiceTest self;
@@ -40,12 +39,17 @@ public class HelloServiceTest {
         });
     }
 
-
-
-    private void testErrorRpc() {
+    private void testBusinessException() {
         String res = helloService.testBusinessException("business exception occurs...");
-        log.info("============= 测试异常rpc调用, 返回结果{} =============", res);
+        log.info("============= 测试业务异常, 返回结果{} =============", res);
     }
+
+    private void testRpcException() {
+        String res = helloService.testRpcException("rpc exception occurs...");
+        log.info("============= 测试rpc异常, 返回结果{} =============", res);
+    }
+
+
 
     @PostConstruct
     @Bean
@@ -59,7 +63,8 @@ public class HelloServiceTest {
     void eventLoop() {
         while (true) {
             log.info("*************1: 测试正常rpc调用 *************");
-            log.info("*************2: 测试异常rpc调用 *************");
+            log.info("*************2: 测试业务异常 *************");
+            log.info("*************3: 测试rpc异常 *************");
             log.info("请输入:");
             Scanner scanner = new Scanner(System.in);
             int read = scanner.nextInt();
@@ -69,9 +74,10 @@ public class HelloServiceTest {
                     self.rpcSayHello();
                     break;
                 case 2:
-                    self.testErrorRpc();
+                    self.testBusinessException();
                     break;
-                default:
+                case 3:
+                    self.testRpcException();
                     break;
             }
         }

@@ -17,13 +17,15 @@ public class CacheFactory {
 
     private static final Map<String, Cache<?>> INSTANCE_MAP = Maps.newConcurrentMap();
 
-    public static <T> Cache<T> newCache(String name, CacheTypeEnum type,int initCapacity, long duration, TimeUnit timeUnit) {
+    private CacheFactory() {}
+
+    public static <T> Cache<T> newCache(String name, CacheTypeEnum type, int initCapacity, long duration) {
 
         Cache<?> instance = INSTANCE_MAP.get(name);
         if (instance == null) {
             synchronized (CacheFactory.class) {
                 if (instance == null && type.equals(CacheTypeEnum.TIMEOUT)) {
-                    instance = new TimeoutCache<>(initCapacity, duration, timeUnit);
+                    instance = new TimeoutCache<>(initCapacity, duration);
                     INSTANCE_MAP.putIfAbsent(name, instance);
                 }
             }

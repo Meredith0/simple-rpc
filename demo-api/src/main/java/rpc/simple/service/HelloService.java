@@ -14,4 +14,6 @@ public interface HelloService {
 
 
     String testBusinessException(String err);
+
+    String testRpcException(String err);
 }

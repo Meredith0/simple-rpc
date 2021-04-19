@@ -1,5 +1,6 @@
 package rpc.simple.registry;
 import rpc.simple.annotation.SPI;
+import rpc.simple.model.Metadata;
 import rpc.simple.model.ServiceInstance;
 
 /**
@@ -14,6 +15,11 @@ public interface ServiceRegistry {
      * @param serviceInstance rpc 服务名称
      */
     void register(ServiceInstance serviceInstance);
+
+    /**
+     * 注册元数据
+     */
+    Metadata register(Metadata metadata);
 
     /**
      * 取消注册服务, 优雅停机时调用

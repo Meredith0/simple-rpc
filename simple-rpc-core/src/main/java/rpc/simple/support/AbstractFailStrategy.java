@@ -1,6 +1,7 @@
 package rpc.simple.support;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 /**
  * @author zeng.fk
@@ -9,7 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public abstract class AbstractFailStrategy implements FailStrategy {
 
-    Object handle(Object... args) {
+    public Object handle(Object... args) {
 
         return process(args);
     }

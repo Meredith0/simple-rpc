@@ -1,13 +1,16 @@
-package rpc.simple.filter;
+package rpc.simple.cache.system;
 
 import com.google.common.collect.Maps;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import rpc.simple.filter.Filter;
+import rpc.simple.filter.FilterChain;
+import rpc.simple.filter.FilterNode;
 
 import java.util.Map;
 
 /**
- * Filter缓存, 非线程安全
+ * Filter缓存
  * @author zeng.fk
  * 2021-04-12 21:44
  */
@@ -22,7 +25,7 @@ public class FilterCache {
     @SneakyThrows
     public static void add(Class<?> name, Object filter,int priority) {
         if (!(filter instanceof Filter)) {
-            throw new IllegalStateException(filter + " is NOT instanceof rpc.zengfk.filter.Filter");
+            throw new IllegalStateException(filter + " is NOT instanceof rpc.simple.filter.Filter");
         }
         FilterChain chain = CACHE_MAP.get(name);
         if (chain == null) {

@@ -12,7 +12,7 @@ class CacheFactoryTest {
 
     @Test
     void newCache() {
-        Cache<Object> testcache = CacheFactory.newCache("testcache", CacheTypeEnum.TIMEOUT, 10, 2, TimeUnit.SECONDS);
+        Cache<Object> testcache = CacheFactory.newCache("testcache", CacheTypeEnum.TIMEOUT, 10, 2000);
         testcache.put(123451L, "1");
         testcache.put(123452L, "2");
         testcache.put(123453L, "3");

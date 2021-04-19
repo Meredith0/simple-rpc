@@ -1,6 +1,8 @@
 package rpc.simple.support.strategy;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
 import rpc.simple.annotation.FailStrategy;
 import rpc.simple.support.AbstractFailStrategy;
 
@@ -11,6 +13,9 @@ import rpc.simple.support.AbstractFailStrategy;
 @Slf4j
 @FailStrategy
 public class Failmock extends AbstractFailStrategy {
+
+    public Failmock() {
+    }
 
     @Override
     public Object process(Object... args) {

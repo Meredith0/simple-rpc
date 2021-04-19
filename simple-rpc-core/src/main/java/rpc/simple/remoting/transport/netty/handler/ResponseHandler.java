@@ -8,12 +8,12 @@ import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import rpc.simple.filter.FilterCache;
+import rpc.simple.cache.system.FilterCache;
 import rpc.simple.filter.FilterChain;
 import rpc.simple.filter.lifecycle.ClientReceivedFilter;
 import rpc.simple.model.RpcResponse;
 import rpc.simple.protocol.RpcProtocol;
-import rpc.simple.remoting.transport.netty.client.FutureBuffer;
+import rpc.simple.cache.FutureCache;
 import rpc.simple.remoting.transport.netty.client.NettyRpcClient;
 import rpc.simple.utils.SpringContextUtil;
 
@@ -46,7 +46,7 @@ public class ResponseHandler extends SimpleChannelInboundHandler<RpcProtocol> {
         chain.invokeChain(protocol, ctx);
 
         RpcResponse rpcResponse = (RpcResponse) protocol.getData();
-        FutureBuffer.complete(rpcResponse);
+        FutureCache.complete(rpcResponse);
     }
 
     /**

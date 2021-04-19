@@ -28,7 +28,7 @@ public class TagRouter extends AbstractRouter {
             }
         }
         return servicePool.stream()
-            .filter(service -> service.tag.equals(routeKey))
+            .filter(service -> service.getTag().equals(routeKey))
             .collect(Collectors.toList());
     }
 }

@@ -24,17 +24,22 @@ public class TimeoutCache<T> implements Cache<T> {
     @Getter
     private final long timeout;
 
-    public TimeoutCache(int initCapacity, long duration, TimeUnit timeUnit) {
-        this.timeout = timeUnit.toMillis(duration);
+    public TimeoutCache(int initCapacity, long duration) {
+        this.timeout = duration;
         this.bucket = new Bucket();
         this.CACHE_MAP = new ConcurrentReferenceHashMap<>(initCapacity, ConcurrentReferenceHashMap.ReferenceType.WEAK);
-        Executors.newScheduledThreadPool(1).scheduleAtFixedRate(this::scheduledExpire, duration, duration, timeUnit);
+        Executors.newScheduledThreadPool(1).scheduleAtFixedRate(this::scheduledExpire, duration, duration, TimeUnit.MILLISECONDS);
     }
 
     @Override
     public void put(Long key, T value) {
         bucket.survive(key);
         CACHE_MAP.put(key, value);
+    }
+
+    @Override
+    public T remove(Long key) {
+        return CACHE_MAP.remove(key);
     }
 
     @Override

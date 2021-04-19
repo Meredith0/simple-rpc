@@ -1,6 +1,7 @@
 package rpc.simple.annotation;
 
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.lang.annotation.*;
 
@@ -14,4 +15,6 @@ import java.lang.annotation.*;
 @Inherited
 @Component
 public @interface FailStrategy {
+
+    byte code() default (byte) 0x01;
 }

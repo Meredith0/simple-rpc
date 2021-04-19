@@ -1,5 +1,7 @@
 package rpc.simple.annotation;
 
+import rpc.simple.support.enums.FailStrategyEnum;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
@@ -37,6 +39,5 @@ public @interface RpcReference {
 
     BiConsumer<?, ?> callback = null;
 
-    @Deprecated
-    byte failStrategy() default (byte)0x01;
+    FailStrategyEnum failStrategy() default FailStrategyEnum.FAIL_FAST;
 }

@@ -6,6 +6,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
 import rpc.simple.extension.ExtensionLoader;
 
+import java.io.IOException;
 import java.util.Properties;
 
 /**
@@ -19,13 +20,27 @@ public class PropertiesUtil {
     public static final String PROPERTIES_LOCATION = "application.properties";
     public static final String ZOOKEEPER_PATH = "rpc.registry.zookeeper.url";
     private static final String ZOOKEEPER_URL = "127.0.0.1:2181";
+    private static final String TIMEOUT = "rpc.remoting.timeout";
+    private static final String DEFAULT_TIMEOUT = "10000";
+    private static Properties properties = null;
 
+    static {
+        ClassPathResource resource = new ClassPathResource(PROPERTIES_LOCATION);
+        try {
+            properties = PropertiesLoaderUtils.loadProperties(resource);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     @SneakyThrows
     public static String getZkUrl() {
-        ClassPathResource resource = new ClassPathResource(PROPERTIES_LOCATION);
-        Properties properties = PropertiesLoaderUtils.loadProperties(resource);
         return properties.getProperty(ZOOKEEPER_PATH, ZOOKEEPER_URL);
+    }
+
+    @SneakyThrows
+    public static String getTimeoutMillis() {
+        return properties.getProperty(TIMEOUT, DEFAULT_TIMEOUT);
     }
 
     @SneakyThrows

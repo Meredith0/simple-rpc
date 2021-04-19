@@ -8,6 +8,8 @@ public interface Cache<T> {
 
     void put(Long key, T value);
 
+    T remove(Long key);
+
     T get(Long key);
 
     void expire();

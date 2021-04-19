@@ -16,6 +16,11 @@ public class LruCache<T> implements Cache<T> {
     }
 
     @Override
+    public T remove(Long key) {
+        return null;
+    }
+
+    @Override
     public T get(Long key) {
         return null;
     }

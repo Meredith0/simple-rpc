@@ -10,6 +10,8 @@ import rpc.simple.extension.ExtensionLoader;
 import rpc.simple.protocol.RpcProtocol;
 import rpc.simple.remoting.compression.Compressor;
 import rpc.simple.serialize.Serializer;
+import rpc.simple.utils.SingletonFactory;
+import rpc.simple.utils.SnowFlakeUtil;
 
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -24,8 +26,7 @@ public class ProtocolEncoder extends MessageToByteEncoder<RpcProtocol> {
     protected void encode(ChannelHandlerContext ctx, RpcProtocol protocol, ByteBuf out) {
         log.debug("encoding protocol... {}", protocol);
         try {
-            //FIXME id生成器
-            int rpcSeqNo = ThreadLocalRandom.current().nextInt();
+            long rpcSeqNo = SnowFlakeUtil.nextId();
             if (protocol.getSeqNo() == 0) {
                 protocol.setSeqNo(rpcSeqNo);
             }
@@ -38,7 +39,8 @@ public class ProtocolEncoder extends MessageToByteEncoder<RpcProtocol> {
             out.writeByte(type);
             out.writeByte(protocol.getCompressor());
             out.writeByte(protocol.getSerializer());
-            out.writeInt(protocol.getSeqNo());
+            out.writeByte(protocol.getFailStrategy());
+            out.writeLong(protocol.getSeqNo());
 
             byte[] body;
             int length = RpcProtocol.HEADER_LENGTH;

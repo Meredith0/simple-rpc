@@ -9,7 +9,7 @@ import rpc.simple.filter.lifecycle.ClientReceivedFilter;
 import rpc.simple.model.RpcResponse;
 import rpc.simple.protocol.RpcProtocol;
 import rpc.simple.support.FailStrategy;
-import rpc.simple.support.FailStrategyCache;
+import rpc.simple.cache.system.FailStrategyCache;
 import rpc.simple.support.enums.FailStrategyEnum;
 
 /**
@@ -44,7 +44,7 @@ public class ExceptionFilter extends ClientReceivedFilter {
 
     private void doFailStrategy(RpcProtocol rpcProtocol) {
         byte code = rpcProtocol.getFailStrategy();
-        FailStrategy failStrategy = FailStrategyCache.get(FailStrategyEnum.get(code));
+        FailStrategy failStrategy = FailStrategyCache.getStrategy(FailStrategyEnum.get(code));
         failStrategy.process(rpcProtocol);
     }
 

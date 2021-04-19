@@ -11,9 +11,12 @@ import io.netty.handler.timeout.IdleStateHandler;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import rpc.simple.cache.system.ChannelCache;
+import rpc.simple.cache.FutureCache;
 import rpc.simple.exception.RpcException;
-import rpc.simple.filter.FilterCache;
+import rpc.simple.cache.system.FilterCache;
 import rpc.simple.filter.FilterChain;
+import rpc.simple.filter.lifecycle.ClientBeforeSendFilter;
 import rpc.simple.filter.lifecycle.ClientSentFilter;
 import rpc.simple.model.RpcRequest;
 import rpc.simple.model.RpcResponse;
@@ -74,12 +77,16 @@ public final class NettyRpcClient implements RpcTransport {
         Channel channel = getServerChannel(serviceInstance.getIp());
 
         if (channel.isActive()) {
-            FutureBuffer.put(req.getRequestId(), responseFuture);
+            FutureCache.put(req.getRequestId(), responseFuture);
             RpcProtocol protocol = RpcProtocol.builder()
                 .type(RpcProtocol.TYPE_REQ)
                 .compressor(RpcProtocol.COMPRESSION_GZIP)
                 .serializer(RpcProtocol.SERIALIZER_PROTOSTUFF)
                 .data(req).build();
+
+            //过滤器, 用于容错机制
+            FilterChain clientBeforeSendFilter = FilterCache.get(ClientBeforeSendFilter.class);
+            clientBeforeSendFilter.invokeChain(protocol, serviceInstance);
 
             channel.writeAndFlush(protocol)
                 .addListener((ChannelFutureListener) future -> {

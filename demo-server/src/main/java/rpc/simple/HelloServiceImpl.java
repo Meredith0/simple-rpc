@@ -1,8 +1,10 @@
 package rpc.simple;
 
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import rpc.simple.annotation.RpcService;
 import rpc.simple.exception.BusinessException;
+import rpc.simple.exception.RpcException;
 import rpc.simple.service.HelloService;
 
 import java.util.function.BiConsumer;
@@ -32,5 +34,10 @@ public class HelloServiceImpl implements HelloService {
     public String testBusinessException(String err) {
 
         throw new BusinessException(err);
+    }
+
+    @Override
+    public String testRpcException(String err) {
+        throw new RpcException(err);
     }
 }

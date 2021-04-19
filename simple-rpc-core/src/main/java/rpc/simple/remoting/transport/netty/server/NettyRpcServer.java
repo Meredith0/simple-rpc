@@ -15,7 +15,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import rpc.simple.model.Metadata;
 import rpc.simple.provider.ServiceProvider;
+import rpc.simple.registry.zookeeper.ZkServiceRegistry;
 import rpc.simple.remoting.transport.netty.codec.ProtocolDecoder;
 import rpc.simple.remoting.transport.netty.codec.ProtocolEncoder;
 import rpc.simple.remoting.transport.netty.handler.RequestHandler;
@@ -34,6 +36,8 @@ public class NettyRpcServer {
 
     @Value("${rpc.remoting.netty.port}")
     public String PORT;
+    @Autowired
+    private ZkServiceRegistry zkServiceRegistry;
 
     private static final String THREAD_NAME_FORMAT = "netty-rpc-server";
     //netty用于临时存放已完成三次握手的请求的队列的最大长度
@@ -93,8 +97,10 @@ public class NettyRpcServer {
         }
     }
 
+    @SneakyThrows
     private void registerMetadata() {
-        //注册元数据
-        serviceProvider.publish(new Object(), "simple-rpc", "1.0.0","srpc");
+        Metadata metadata = new Metadata();
+        metadata = zkServiceRegistry.register(metadata);
+        Metadata.register(metadata);
     }
 }

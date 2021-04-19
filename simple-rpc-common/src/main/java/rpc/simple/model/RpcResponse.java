@@ -20,7 +20,7 @@ public class RpcResponse implements Serializable {
     public static final int SERVER_ERRORS = 500;
     public static final int BUSINESS_EXCEPTION = 600;
 
-    private String requestId;
+    private Long requestId;
 
     private Integer code;
 
@@ -28,7 +28,7 @@ public class RpcResponse implements Serializable {
 
     private Object data;
 
-    public static RpcResponse forSuccess(String requestId, Object data) {
+    public static RpcResponse forSuccess(Long requestId, Object data) {
         RpcResponse rpcResponse = new RpcResponse();
         rpcResponse.setRequestId(requestId);
         rpcResponse.setData(data);
@@ -37,7 +37,7 @@ public class RpcResponse implements Serializable {
         return rpcResponse;
     }
 
-    public static RpcResponse forBusinessException(String requestId, String msg) {
+    public static RpcResponse forBusinessException(Long requestId, String msg) {
         RpcResponse rpcResponse = new RpcResponse();
         rpcResponse.setRequestId(requestId);
         rpcResponse.setCode(BUSINESS_EXCEPTION);
@@ -47,14 +47,14 @@ public class RpcResponse implements Serializable {
 
 
 
-    public static RpcResponse forServerError(String requestId, String msg) {
+    public static RpcResponse forServerError(Long requestId, String msg) {
         RpcResponse rpcResponse = new RpcResponse();
         rpcResponse.setRequestId(requestId);
         rpcResponse.setCode(SERVER_ERRORS);
         rpcResponse.setMessage(msg);
         return rpcResponse;
     }
-    public static RpcResponse forClientError(String requestId) {
+    public static RpcResponse forClientError(Long requestId) {
         RpcResponse rpcResponse = new RpcResponse();
         rpcResponse.setRequestId(requestId);
         rpcResponse.setCode(CLIENT_ERRORS);

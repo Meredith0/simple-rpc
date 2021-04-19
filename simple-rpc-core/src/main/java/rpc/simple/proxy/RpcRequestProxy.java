@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import rpc.simple.exception.RpcException;
 import rpc.simple.extension.ExtensionLoader;
 import rpc.simple.extension.ExtensionName;
-import rpc.simple.filter.FilterCache;
+import rpc.simple.cache.system.FilterCache;
 import rpc.simple.filter.FilterChain;
 import rpc.simple.filter.lifecycle.ClientBeforeSendFilter;
 import rpc.simple.filter.lifecycle.ClientInvokedFilter;
@@ -15,11 +15,13 @@ import rpc.simple.model.ServiceInstance;
 import rpc.simple.registry.ServiceDiscovery;
 import rpc.simple.remoting.transport.RpcTransport;
 import rpc.simple.router.Router;
+import rpc.simple.support.enums.FailStrategyEnum;
+import rpc.simple.utils.SingletonFactory;
+import rpc.simple.utils.SnowFlakeUtil;
 
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -49,7 +51,8 @@ public class RpcRequestProxy implements Proxy {
     }
 
     private Object doProxy(Method method, Object[] args) throws Throwable {
-        String requestId = UUID.randomUUID().toString();
+        Long requestId = SnowFlakeUtil.nextId();
+
         log.info("发起rpc请求, requestId:{}", requestId);
 
         //过滤器
@@ -69,10 +72,6 @@ public class RpcRequestProxy implements Proxy {
 
         //路由, 负载均衡
         ServiceInstance routedService = router.route(serviceInstancePool, service.getTag());
-
-        //过滤器, 用于容错机制
-        FilterChain clientBeforeSendFilter = FilterCache.get(ClientBeforeSendFilter.class);
-        clientBeforeSendFilter.invokeChain(rpcRequest, routedService);
 
         //发送请求
         CompletableFuture<RpcResponse> future =

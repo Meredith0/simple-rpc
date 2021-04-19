@@ -11,14 +11,15 @@ import rpc.simple.annotation.FailStrategy;
 import rpc.simple.annotation.RpcFilter;
 import rpc.simple.annotation.RpcReference;
 import rpc.simple.annotation.RpcService;
+import rpc.simple.cache.system.FailStrategyCache;
+import rpc.simple.cache.system.FilterCache;
 import rpc.simple.filter.Filter;
-import rpc.simple.filter.FilterCache;
 import rpc.simple.model.Service;
+import rpc.simple.model.Tag;
 import rpc.simple.provider.ServiceProvider;
 import rpc.simple.proxy.RpcRequestProxy;
 import rpc.simple.remoting.transport.RpcTransport;
-import rpc.simple.model.Tag;
-import rpc.simple.support.FailStrategyCache;
+import rpc.simple.support.enums.FailStrategyEnum;
 
 import java.lang.reflect.Field;
 
@@ -45,11 +46,11 @@ public class AnnotationLoader implements BeanPostProcessor {
             registerService(bean);
         }
 
-        else if (bean.getClass().isAnnotationPresent(RpcFilter.class) && bean instanceof Filter) {
-            registerFilter((Filter<?,?>) bean);
+        if (bean.getClass().isAnnotationPresent(RpcFilter.class) && bean instanceof Filter) {
+            registerFilter((Filter<?, ?>) bean);
         }
 
-        else if (bean.getClass().isAnnotationPresent(FailStrategy.class)) {
+        if (bean.getClass().isAnnotationPresent(FailStrategy.class)) {
             registerFailStrategy(bean);
         }
 
@@ -66,8 +67,8 @@ public class AnnotationLoader implements BeanPostProcessor {
 
     private void registerFailStrategy(Object bean) {
         Class<?> strategyClass = bean.getClass();
-        if (bean instanceof FailStrategy) {
-            FailStrategyCache.add(strategyClass, (rpc.simple.support.FailStrategy) bean);
+        if (bean instanceof rpc.simple.support.FailStrategy) {
+            FailStrategyCache.put(strategyClass, (rpc.simple.support.FailStrategy) bean);
         }
     }
 
@@ -94,6 +95,7 @@ public class AnnotationLoader implements BeanPostProcessor {
 
         Service service = new Service(annotation.name(), annotation.version(), new Tag(annotation.tag()));
 
+        FailStrategyCache.put(service, annotation.failStrategy());
         //动态代理
         RpcRequestProxy proxy = new RpcRequestProxy(transport, service);
         return proxy.newProxyInstance(field.getType());

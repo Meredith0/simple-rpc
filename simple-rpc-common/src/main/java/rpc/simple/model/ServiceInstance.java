@@ -37,5 +37,9 @@ public class ServiceInstance extends Service {
         this.host = host;
         this.port = port;
     }
+
+    public Service getService() {
+        return new Service(serviceName, version);
+    }
 }
 

@@ -8,9 +8,9 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * rpc协议
- * 0   1   2   3   4       5   6   7   8   9    10        11    12   13   14   15   16
- * +---+---+---+---+-------+---+---+---+---+----+---------+-----+----+----+----+----+    header
- * |   magic code  |version|     length    |type|compress|serial|       trace id  ---
+ * 0   1   2   3   4       5   6   7   8   9    10        11    12     13   14   15   16
+ * +---+---+---+---+-------+---+---+---+---+----+---------+-----+------+----+----+----+    header
+ * |   magic code  |version|     length    |type|compress|serial|fail...   trace id  ---
  * --- trace id    |sup-span id|span id|
  * +---------------+-------+---------------+----+--------+------+-------------------+    body
  * |                                                                                |
@@ -20,8 +20,8 @@ import lombok.extern.slf4j.Slf4j;
  * +--------------------------------------------------------------------------------+
  * header
  * 4Byte  magic code（魔法数: srpc）,  1Byte ver（版本: 1）, 4Byte length（消息长度）, 1Byte type（消息类型),
- * 1Byte compress（压缩类型）, 1Byte serial（序列化类型）, 8Byte trace id（跟踪号）, 2Byte sup-span id(父span id)
- * 2Byte span id(表示一次请求来回)
+ * 1Byte compress（压缩类型）, 1Byte serial（序列化类型）, 1Byte failStrategy (容错策略）
+ * 8Byte trace id（跟踪号）, 2Byte sup-span id(父span id) 2Byte span id(表示一次请求来回)
  *
  * body
  * data（object）
@@ -39,7 +39,7 @@ public class RpcProtocol {
 
     public static final byte[] MAGIC_CODE = {(byte) 's', (byte) 'r', (byte) 'p', (byte) 'c'};
     public static final byte VERSION = 0x01;
-    public static final int HEADER_LENGTH = 16;
+    public static final int HEADER_LENGTH = 21;
     public static final byte TYPE_REQ = 0x01;
     public static final byte TYPE_RESP = 0x02;
     public static final byte TYPE_HEARTBEAT_PING = 0x03;
@@ -52,8 +52,7 @@ public class RpcProtocol {
     private byte serializer;
     private byte compressor;
     private byte failStrategy;
-    //FIXME requestId 暂未启用, 暂以 data 中的 uuid 代替
-    private int seqNo;
+    private long seqNo;
     //request data
     private Object data;
 

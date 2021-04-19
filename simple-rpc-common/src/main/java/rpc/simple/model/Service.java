@@ -18,10 +18,10 @@ import lombok.extern.slf4j.Slf4j;
 @EqualsAndHashCode
 public class Service {
 
-    public String serviceName;
-    public String version;
+    protected String serviceName;
+    protected String version;
     @EqualsAndHashCode.Exclude
-    public Tag tag;
+    protected Tag tag;
 
     public Service(String serviceName, String version) {
         this.serviceName = serviceName;

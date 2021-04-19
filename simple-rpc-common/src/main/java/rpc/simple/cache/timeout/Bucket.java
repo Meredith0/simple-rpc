@@ -26,8 +26,8 @@ public class Bucket {
 
     public void clearExpiredKey() {
         synchronized (this) {
-            log.debug("clearing expired set...");
             Set<Long> expiredSet = getExpiredSet();
+            log.debug("clearing expired set:{}",expiredSet);
             flip();
             expiredSet.clear();
         }

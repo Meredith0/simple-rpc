@@ -40,7 +40,7 @@ public class ProtocolDecoder extends LengthFieldBasedFrameDecoder {
 
     public ProtocolDecoder() {
         /*
-          lengthFieldOffset: 魔法数: 'aRPC' 占 4B, 版本号: 1 占 1B, 后面就是 length 段, 所以是 5
+          lengthFieldOffset: 魔法数: 'srpc' 占 4B, 版本号: 1 占 1B, 后面就是 length 段, 所以是 5
           lengthFieldLength: length 段长度是 4
           lengthAdjustment: length 段前面有 9B, 所以是 -9
           initialBytesToStrip: 后面会手动检查 magic code 和 version, 不需要 strip header, 所以是 0
@@ -83,12 +83,14 @@ public class ProtocolDecoder extends LengthFieldBasedFrameDecoder {
         byte type = in.readByte();
         byte compressCode = in.readByte();
         byte serializeCode = in.readByte();
-        int requestId = in.readInt();
+        byte failStrategy = in.readByte();
+        long seqNo = in.readLong();
         RpcProtocol protocol = RpcProtocol.builder()
             .type(type)
             .serializer(serializeCode)
             .compressor(compressCode)
-            .seqNo(requestId).build();
+            .failStrategy(failStrategy)
+            .seqNo(seqNo).build();
 
         //是心跳包就直接返回
         if (type == RpcProtocol.TYPE_HEARTBEAT_PING) {
