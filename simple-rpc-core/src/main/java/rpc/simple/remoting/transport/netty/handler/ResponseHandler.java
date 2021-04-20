@@ -45,7 +45,7 @@ public class ResponseHandler extends SimpleChannelInboundHandler<RpcProtocol> {
         FilterChain chain = FilterCache.get(ClientReceivedFilter.class);
         chain.invokeChain(protocol, ctx);
 
-        RpcResponse rpcResponse = (RpcResponse) protocol.getData();
+        RpcResponse rpcResponse = (RpcResponse) protocol.getBody();
         FutureCache.complete(rpcResponse);
     }
 

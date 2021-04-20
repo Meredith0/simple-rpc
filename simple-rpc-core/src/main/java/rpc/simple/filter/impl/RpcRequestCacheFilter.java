@@ -2,7 +2,6 @@ package rpc.simple.filter.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import rpc.simple.annotation.RpcFilter;
-import rpc.simple.filter.lifecycle.ClientBeforeSendFilter;
 import rpc.simple.filter.lifecycle.ClientSentFilter;
 import rpc.simple.model.RpcRequest;
 import rpc.simple.model.ServiceInstance;
@@ -19,7 +18,7 @@ public class RpcRequestCacheFilter extends ClientSentFilter {
 
     @Override
     public Object[] doFilter(RpcProtocol protocol, ServiceInstance serviceInstance) {
-        RpcRequest rpcRequest = (RpcRequest) protocol.getData();
+        RpcRequest rpcRequest = (RpcRequest) protocol.getBody();
         RpcRequestCache.put(rpcRequest.getRequestId(), rpcRequest, serviceInstance, 0);
 
         return new Object[]{protocol, serviceInstance};

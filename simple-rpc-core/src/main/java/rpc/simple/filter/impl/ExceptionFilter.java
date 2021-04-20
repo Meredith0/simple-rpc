@@ -22,7 +22,7 @@ public class ExceptionFilter extends ClientReceivedFilter {
 
     @Override
     public Object[] doFilter(RpcProtocol rpcProtocol, ChannelHandlerContext channelHandlerContext) {
-        RpcResponse response = (RpcResponse) rpcProtocol.getData();
+        RpcResponse response = (RpcResponse) rpcProtocol.getBody();
         switch (response.getCode()) {
             case RpcResponse.OK:
                 break;

@@ -20,7 +20,7 @@ import java.util.Arrays;
  * rpc协议
  * 0   1   2   3   4       5   6   7   8   9    10        11    12   13   14   15   16
  * +---+---+---+---+-------+---+---+---+---+----+---------+-----+----+----+----+----+
- * |   magic code  |version|     length    |type|compress|serial|        seqNo      |
+ * |   magic code  |version|     length    |type|compress|serial|        traceId      |
  * +---------------+-------+---------------+----+--------+------+-------------------+
  * |                                                                                |
  * |                                body                                            |
@@ -28,7 +28,7 @@ import java.util.Arrays;
  * |                              ... ...                                           |
  * +--------------------------------------------------------------------------------+
  * 4B  magic code（魔法数: srpc）   1B ver（版本: 1）   4B length（消息长度）    1B type（消息类型）
- * 1B compress（压缩类型） 1B serial（序列化类型）    4B  seqNo（rpc请求序列号）
+ * 1B compress（压缩类型） 1B serial（序列化类型）    4B  traceId（rpc请求序列号）
  * body（object类型数据）
  *
  * @author zeng.fk
@@ -90,15 +90,15 @@ public class ProtocolDecoder extends LengthFieldBasedFrameDecoder {
             .serializer(serializeCode)
             .compressor(compressCode)
             .failStrategy(failStrategy)
-            .seqNo(seqNo).build();
+            .traceId(seqNo).build();
 
         //是心跳包就直接返回
         if (type == RpcProtocol.TYPE_HEARTBEAT_PING) {
-            protocol.setData(RpcProtocol.TYPE_HEARTBEAT_PONG);
+            protocol.setBody(RpcProtocol.TYPE_HEARTBEAT_PONG);
             return protocol;
         }
         if (type == RpcProtocol.TYPE_HEARTBEAT_PONG) {
-            protocol.setData(RpcProtocol.TYPE_HEARTBEAT_PING);
+            protocol.setBody(RpcProtocol.TYPE_HEARTBEAT_PING);
             return protocol;
         }
         //解析body
@@ -115,10 +115,10 @@ public class ProtocolDecoder extends LengthFieldBasedFrameDecoder {
             Serializer serializer = ExtensionLoader.ofType(Serializer.class).getExtension(serializerName);
             //判断请求类型
             if (type == RpcProtocol.TYPE_REQ) {
-                protocol.setData(serializer.deserialize(bs, RpcRequest.class));
+                protocol.setBody(serializer.deserialize(bs, RpcRequest.class));
             }
             else if (type == RpcProtocol.TYPE_RESP) {
-                protocol.setData(serializer.deserialize(bs, RpcResponse.class));
+                protocol.setBody(serializer.deserialize(bs, RpcResponse.class));
             }
             else {
                 throw new RpcException("未知 RpcProtocol type, type:" + type);

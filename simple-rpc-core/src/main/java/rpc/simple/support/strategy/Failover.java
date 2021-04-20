@@ -1,17 +1,14 @@
 package rpc.simple.support.strategy;
 
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import rpc.simple.annotation.FailStrategy;
 import rpc.simple.cache.RpcRequestCache;
 import rpc.simple.extension.ExtensionLoader;
 import rpc.simple.extension.ExtensionName;
-import rpc.simple.model.RpcRequest;
 import rpc.simple.model.RpcResponse;
 import rpc.simple.model.ServiceInstance;
 import rpc.simple.protocol.RpcProtocol;
-import rpc.simple.proxy.RpcRequestProxy;
 import rpc.simple.registry.ServiceDiscovery;
 import rpc.simple.remoting.transport.RpcTransport;
 import rpc.simple.router.Router;
@@ -41,7 +38,7 @@ public class Failover extends AbstractFailStrategy {
     private Object retry(Object p) {
         log.info("failover retry {}", p);
         RpcProtocol protocol = (RpcProtocol) p;
-        RpcResponse response = (RpcResponse) protocol.getData();
+        RpcResponse response = (RpcResponse) protocol.getBody();
         RpcRequestCache.CacheValue cacheValue = RpcRequestCache.get(response.getRequestId());
 
         ServiceDiscovery serviceDiscovery = ExtensionLoader.ofType(ServiceDiscovery.class).getExtension(ExtensionName.DISCOVERY);
@@ -66,7 +63,7 @@ public class Failover extends AbstractFailStrategy {
         try {
             //FIXME 收不到回调
             RpcResponse rpcResponse = future.get();
-            protocol.setData(rpcResponse);
+            protocol.setBody(rpcResponse);
         } catch (InterruptedException | ExecutionException e) {
             log.error("retry failed...");
             e.printStackTrace();

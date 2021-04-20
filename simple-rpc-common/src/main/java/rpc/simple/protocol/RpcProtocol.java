@@ -14,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
  * --- trace id    |sup-span id|span id|
  * +---------------+-------+---------------+----+--------+------+-------------------+    body
  * |                                                                                |
- * |                               data                                             |
+ * |                               body                                             |
  * |                             ... ...                                            |
  * |                             ... ...                                            |
  * +--------------------------------------------------------------------------------+
@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
  * 8Byte trace id（跟踪号）, 2Byte sup-span id(父span id) 2Byte span id(表示一次请求来回)
  *
  * body
- * data（object）
+ * body（object）
  *
  * @author zeng.fk
  * 2021-04-06 20:33
@@ -52,9 +52,9 @@ public class RpcProtocol {
     private byte serializer;
     private byte compressor;
     private byte failStrategy;
-    private long seqNo;
-    //request data
-    private Object data;
+    private long traceId;
+    //request body
+    private Object body;
 
     public boolean isHeartbeat() {
         return type == TYPE_HEARTBEAT_PING || type == TYPE_HEARTBEAT_PONG;

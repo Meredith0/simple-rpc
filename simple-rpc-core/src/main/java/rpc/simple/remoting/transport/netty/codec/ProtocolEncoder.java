@@ -10,10 +10,7 @@ import rpc.simple.extension.ExtensionLoader;
 import rpc.simple.protocol.RpcProtocol;
 import rpc.simple.remoting.compression.Compressor;
 import rpc.simple.serialize.Serializer;
-import rpc.simple.utils.SingletonFactory;
 import rpc.simple.utils.SnowFlakeUtil;
-
-import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * @author zeng.fk
@@ -27,8 +24,8 @@ public class ProtocolEncoder extends MessageToByteEncoder<RpcProtocol> {
         log.debug("encoding protocol... {}", protocol);
         try {
             long rpcSeqNo = SnowFlakeUtil.nextId();
-            if (protocol.getSeqNo() == 0) {
-                protocol.setSeqNo(rpcSeqNo);
+            if (protocol.getTraceId() == 0) {
+                protocol.setTraceId(rpcSeqNo);
             }
 
             out.writeBytes(RpcProtocol.MAGIC_CODE);
@@ -40,7 +37,7 @@ public class ProtocolEncoder extends MessageToByteEncoder<RpcProtocol> {
             out.writeByte(protocol.getCompressor());
             out.writeByte(protocol.getSerializer());
             out.writeByte(protocol.getFailStrategy());
-            out.writeLong(protocol.getSeqNo());
+            out.writeLong(protocol.getTraceId());
 
             byte[] body;
             int length = RpcProtocol.HEADER_LENGTH;
@@ -49,7 +46,7 @@ public class ProtocolEncoder extends MessageToByteEncoder<RpcProtocol> {
                 String serializerName = SerializerEnum.getName(protocol.getSerializer());
                 log.debug("using serializer: {}", serializerName);
                 Serializer serializer = ExtensionLoader.ofType(Serializer.class).getExtension(serializerName);
-                body = serializer.serialize(protocol.getData());
+                body = serializer.serialize(protocol.getBody());
 
                 String compressorName = CompressorEnum.getName(protocol.getCompressor());
                 log.debug("using compressor: {}", compressorName);

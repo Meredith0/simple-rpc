@@ -38,7 +38,7 @@ public class RequestHandler extends SimpleChannelInboundHandler<RpcProtocol> {
 
         log.debug("RequestHandler接收到protocol: {} ", protocol);
 
-        RpcRequest rpcRequest = (RpcRequest) protocol.getData();
+        RpcRequest rpcRequest = (RpcRequest) protocol.getBody();
         RpcResponse rpcResponse = null;
         try {
             //调用服务
@@ -55,10 +55,10 @@ public class RequestHandler extends SimpleChannelInboundHandler<RpcProtocol> {
         }
         protocol.setType(RpcProtocol.TYPE_RESP);
         if (ctx.channel().isActive() && ctx.channel().isWritable()) {
-            protocol.setData(rpcResponse);
+            protocol.setBody(rpcResponse);
         } else {
             rpcResponse = RpcResponse.forClientError(rpcRequest.getRequestId());
-            protocol.setData(rpcResponse);
+            protocol.setBody(rpcResponse);
             log.error("channel is NOT writable, protocol dropped {}", protocol);
         }
 
