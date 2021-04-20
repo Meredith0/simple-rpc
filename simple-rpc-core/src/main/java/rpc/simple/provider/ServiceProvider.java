@@ -11,4 +11,7 @@ public interface ServiceProvider {
 
     Object get(Service service);
 
+    void provideLocally(Object service, String serviceName);
+
+    Object get(String serviceName);
 }

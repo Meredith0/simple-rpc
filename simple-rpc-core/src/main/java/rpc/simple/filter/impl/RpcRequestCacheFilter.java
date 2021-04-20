@@ -9,6 +9,7 @@ import rpc.simple.cache.RpcRequestCache;
 import rpc.simple.protocol.RpcProtocol;
 
 /**
+ * client成功发送协议后把协议缓存起来, 供重试
  * @author zeng.fk
  * 2021-04-16 16:29
  */

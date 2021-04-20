@@ -1,10 +1,9 @@
 package rpc.simple.support.enums;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
 import rpc.simple.support.strategy.Failfast;
-import rpc.simple.support.strategy.Failmock;
+import rpc.simple.support.strategy.FailMock;
 import rpc.simple.support.strategy.Failover;
 
 /**
@@ -16,7 +15,7 @@ import rpc.simple.support.strategy.Failover;
 public enum FailStrategyEnum {
     FAIL_FAST((byte) 0x01, Failfast.class),
     FAIL_OVER((byte) 0x02, Failover.class),
-    FAIL_MOCK((byte) 0x03, Failmock.class),
+    FAIL_MOCK((byte) 0x03, FailMock.class),
     ;
     private final byte code;
     private final Class<?> clazz;

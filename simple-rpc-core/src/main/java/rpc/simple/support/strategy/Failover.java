@@ -12,7 +12,7 @@ import rpc.simple.protocol.RpcProtocol;
 import rpc.simple.registry.ServiceDiscovery;
 import rpc.simple.remoting.transport.RpcTransport;
 import rpc.simple.router.Router;
-import rpc.simple.support.AbstractFailStrategy;
+import rpc.simple.support.FailTolerate;
 import rpc.simple.utils.SnowFlakeUtil;
 
 import java.util.List;
@@ -25,17 +25,17 @@ import java.util.concurrent.ExecutionException;
  */
 @Slf4j
 @FailStrategy
-public class Failover extends AbstractFailStrategy {
+public class Failover implements FailTolerate {
 
     @Autowired
     private RpcTransport transport;
 
     @Override
-    public Object process(Object... args) {
-        return retry(args[0]);
+    public void process(Object... args) {
+        retry(args[0]);
     }
 
-    private Object retry(Object p) {
+    private void retry(Object p) {
         log.info("failover retry {}", p);
         RpcProtocol protocol = (RpcProtocol) p;
         RpcResponse response = (RpcResponse) protocol.getBody();
@@ -68,7 +68,5 @@ public class Failover extends AbstractFailStrategy {
             log.error("retry failed...");
             e.printStackTrace();
         }
-
-        return protocol;
     }
 }

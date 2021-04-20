@@ -1,6 +1,7 @@
 package rpc.simple.annotation;
 
 import rpc.simple.support.enums.FailStrategyEnum;
+import rpc.simple.support.strategy.FailMock;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -37,7 +38,19 @@ public @interface RpcReference {
      */
     String tag() default "";
 
+    /**
+     * 异步调用时的回调接口
+     */
     BiConsumer<?, ?> callback = null;
 
+    /**
+     * 容错策略, 默认FAILFAST
+     */
     FailStrategyEnum failStrategy() default FailStrategyEnum.FAIL_FAST;
+
+    /**
+     * 服务降级接口, 仅在failStrategy==FailStrategyEnum.FAIL_MOCK 时启用
+     * 传入降级的实现类(实现rpc服务接口), 入参同该服务
+     */
+    // Class<? extends FailMock> mock() default FailMock.class;
 }

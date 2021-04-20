@@ -8,7 +8,7 @@ import rpc.simple.exception.RpcException;
 import rpc.simple.filter.lifecycle.ClientReceivedFilter;
 import rpc.simple.model.RpcResponse;
 import rpc.simple.protocol.RpcProtocol;
-import rpc.simple.support.FailStrategy;
+import rpc.simple.support.FailTolerate;
 import rpc.simple.cache.system.FailStrategyCache;
 import rpc.simple.support.enums.FailStrategyEnum;
 
@@ -31,10 +31,12 @@ public class ExceptionFilter extends ClientReceivedFilter {
                 throw new RpcException("BAD CLIENT");
 
             case RpcResponse.SERVER_ERRORS:
-                doFailStrategy(rpcProtocol);
+                handleServerError(rpcProtocol);
+                break;
 
             case RpcResponse.BUSINESS_EXCEPTION:
-                throw new BusinessException(response.toString());
+                handleBusinessException(response);
+                break;
 
             default:
                 throw new IllegalStateException();
@@ -42,13 +44,21 @@ public class ExceptionFilter extends ClientReceivedFilter {
         return new Object[]{rpcProtocol, channelHandlerContext};
     }
 
-    private void doFailStrategy(RpcProtocol rpcProtocol) {
+    /**
+     * 触发容错机制
+     */
+    private void handleServerError(RpcProtocol rpcProtocol) {
+        //根据协议中指定的容错机制调用容错策略
         byte code = rpcProtocol.getFailStrategy();
-        FailStrategy failStrategy = FailStrategyCache.getStrategy(FailStrategyEnum.get(code));
-        failStrategy.process(rpcProtocol);
+        FailTolerate failTolerate = FailStrategyCache.getStrategy(FailStrategyEnum.get(code));
+
+        failTolerate.process(rpcProtocol);
     }
 
-    private Object handleBusinessException(RpcResponse response) {
-        return null;
+    /**
+     * 业务异常不属于错误, 直接抛出
+     */
+    private void handleBusinessException(RpcResponse response) {
+        throw new BusinessException(response.toString());
     }
 }

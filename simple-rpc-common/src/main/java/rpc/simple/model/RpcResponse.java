@@ -12,10 +12,10 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Data
 @Builder
-public class RpcResponse implements Serializable {
+public class RpcResponse {
 
-    private static final long serialVersionUID = 45222463124123243L;
     public static final int OK = 200;
+    public static final int MOCKED = 201;
     public static final int CLIENT_ERRORS = 400;
     public static final int SERVER_ERRORS = 500;
     public static final int BUSINESS_EXCEPTION = 600;

@@ -16,7 +16,7 @@ import java.util.concurrent.CompletableFuture;
 @Slf4j
 public final class FutureCache {
 
-    private static final int INIT_CAPACITY = 10;
+    private static final int INIT_CAPACITY = 64;
     public static final long TIMEOUT = Long.parseLong(PropertiesUtil.getTimeoutMillis());
     /**
      * key: requestId, value:RpcResponse Future

@@ -32,6 +32,10 @@ public class SimpleServiceProvider implements ServiceProvider{
      * key: Service, 即服务名+版本号+tag  value: serviceBean
      */
     private static final Map<Service, Object> PUBLISHED_SERVICE = Maps.newConcurrentMap();
+    /**
+     * key: service name, value: serviceBean
+     */
+    private static final Map<String, Object> LOCALLY_PROVIDE_SERVICE = Maps.newConcurrentMap();
 
     public SimpleServiceProvider() {
         this.registry = ExtensionLoader.ofType(ServiceRegistry.class).getExtension(ExtensionName.REGISTRY);
@@ -62,4 +66,13 @@ public class SimpleServiceProvider implements ServiceProvider{
         return serviceBean;
     }
 
+    @Override
+    public void provideLocally(Object serviceBean, String serviceName) {
+        LOCALLY_PROVIDE_SERVICE.put(serviceName, serviceBean);
+    }
+
+    @Override
+    public Object get(String serviceName) {
+        return LOCALLY_PROVIDE_SERVICE.get(serviceName);
+    }
 }

@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import rpc.simple.enums.CacheTypeEnum;
+import rpc.simple.exception.RpcException;
 import rpc.simple.model.RpcRequest;
 import rpc.simple.model.ServiceInstance;
 import rpc.simple.utils.PropertiesUtil;
@@ -17,7 +18,7 @@ import rpc.simple.utils.PropertiesUtil;
 @Slf4j
 public class RpcRequestCache {
 
-    public static final int INIT_CAPACITY = 10;
+    public static final int INIT_CAPACITY = 64;
     public static final long TIMEOUT = Long.parseLong(PropertiesUtil.getTimeoutMillis());
     /**
      * key: requestId, value: RpcRequest
@@ -37,6 +38,10 @@ public class RpcRequestCache {
     }
 
     public static CacheValue get(Long requestId) {
+        CacheValue cacheValue = CACHE.get(requestId);
+        if (cacheValue == null) {
+            throw new RpcException("RpcRequest cache has expired, requestId:{}", requestId);
+        }
         return CACHE.get(requestId);
     }
 

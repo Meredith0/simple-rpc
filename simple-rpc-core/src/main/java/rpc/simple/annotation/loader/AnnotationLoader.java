@@ -7,10 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
-import rpc.simple.annotation.FailStrategy;
-import rpc.simple.annotation.RpcFilter;
-import rpc.simple.annotation.RpcReference;
-import rpc.simple.annotation.RpcService;
+import rpc.simple.annotation.*;
 import rpc.simple.cache.system.FailStrategyCache;
 import rpc.simple.cache.system.FilterCache;
 import rpc.simple.filter.Filter;
@@ -19,7 +16,8 @@ import rpc.simple.model.Tag;
 import rpc.simple.provider.ServiceProvider;
 import rpc.simple.proxy.RpcRequestProxy;
 import rpc.simple.remoting.transport.RpcTransport;
-import rpc.simple.support.enums.FailStrategyEnum;
+import rpc.simple.support.FailTolerate;
+import rpc.simple.support.strategy.FailMock;
 
 import java.lang.reflect.Field;
 
@@ -54,6 +52,10 @@ public class AnnotationLoader implements BeanPostProcessor {
             registerFailStrategy(bean);
         }
 
+        if (bean.getClass().isAnnotationPresent(MockService.class)) {
+            registerMockService(bean);
+        }
+
         Field[] declaredFields = bean.getClass().getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(RpcReference.class)) {
@@ -67,9 +69,18 @@ public class AnnotationLoader implements BeanPostProcessor {
 
     private void registerFailStrategy(Object bean) {
         Class<?> strategyClass = bean.getClass();
-        if (bean instanceof rpc.simple.support.FailStrategy) {
-            FailStrategyCache.put(strategyClass, (rpc.simple.support.FailStrategy) bean);
+        if (bean instanceof FailTolerate) {
+            FailStrategyCache.put(strategyClass, (FailTolerate) bean);
         }
+    }
+
+    private void registerMockService(Object bean) {
+        MockService annotation = bean.getClass().getAnnotation(MockService.class);
+        String serviceName = annotation.name();
+        if (StringUtils.isEmpty(serviceName)) {
+            throw new IllegalArgumentException("service name cannot be empty");
+        }
+        provider.provideLocally(bean, serviceName);
     }
 
     private void registerFilter(Filter<?, ?> bean) {

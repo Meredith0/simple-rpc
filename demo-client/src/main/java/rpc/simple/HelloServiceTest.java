@@ -23,14 +23,20 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class HelloServiceTest {
 
-    @RpcReference(name = "helloService",failStrategy = FailStrategyEnum.FAIL_OVER)
+    @RpcReference(name = "helloService", failStrategy = FailStrategyEnum.FAIL_OVER)
     private HelloService helloService;
+    @RpcReference(name = "helloService", failStrategy = FailStrategyEnum.FAIL_MOCK)
+    private HelloService failMockTest;
+
     @Autowired
     HelloServiceTest self;
 
+    public HelloServiceTest() {
+    }
+
     private void rpcSayHello() {
         String res = helloService.sayHello("foo");
-        log.info("============= 测试正常rpc调用, 返回结果{} =============", res);
+        log.info("============= 测试正常rpc调用, 返回结果: {} =============", res);
     }
 
     private void rpcSayHelloAsync() {
@@ -41,15 +47,18 @@ public class HelloServiceTest {
 
     private void testBusinessException() {
         String res = helloService.testBusinessException("business exception occurs...");
-        log.info("============= 测试业务异常, 返回结果{} =============", res);
+        log.info("============= 测试业务异常, 返回结果: {} =============", res);
     }
 
     private void testRpcException() {
         String res = helloService.testRpcException("rpc exception occurs...");
-        log.info("============= 测试rpc异常, 返回结果{} =============", res);
+        log.info("============= 测试rpc异常, 返回结果: {} =============", res);
     }
 
-
+    private void testFailMock() {
+        String res = failMockTest.testRpcException("fail mock");
+        log.info("============= 测试fail mock, 返回结果: {} =============",res);
+    }
 
     @PostConstruct
     @Bean
@@ -65,6 +74,7 @@ public class HelloServiceTest {
             log.info("*************1: 测试正常rpc调用 *************");
             log.info("*************2: 测试业务异常 *************");
             log.info("*************3: 测试rpc异常 *************");
+            log.info("*************4: 测试FailMock *************");
             log.info("请输入:");
             Scanner scanner = new Scanner(System.in);
             int read = scanner.nextInt();
@@ -79,6 +89,12 @@ public class HelloServiceTest {
                 case 3:
                     self.testRpcException();
                     break;
+                case 4:
+                    self.testFailMock();
+                    break;
+
+                default:
+                    throw new IllegalStateException();
             }
         }
     }

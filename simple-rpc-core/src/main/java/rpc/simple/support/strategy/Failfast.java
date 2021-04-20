@@ -1,11 +1,9 @@
 package rpc.simple.support.strategy;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 import rpc.simple.annotation.FailStrategy;
-import rpc.simple.annotation.RpcFilter;
 import rpc.simple.exception.RpcException;
-import rpc.simple.support.AbstractFailStrategy;
+import rpc.simple.support.FailTolerate;
 
 /**
  * @author zeng.fk
@@ -13,10 +11,10 @@ import rpc.simple.support.AbstractFailStrategy;
  */
 @Slf4j
 @FailStrategy
-public class Failfast extends AbstractFailStrategy {
+public class Failfast implements FailTolerate {
 
     @Override
-    public Object process(Object... args) {
+    public void process(Object... args) {
         throw new RpcException("failfast", args);
     }
 
