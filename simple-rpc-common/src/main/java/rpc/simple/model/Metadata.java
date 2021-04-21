@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
+ * 服务元数据, 目前仅用于雪花算法
  * @author zeng.fk
  * 2021-04-16 17:10
  */

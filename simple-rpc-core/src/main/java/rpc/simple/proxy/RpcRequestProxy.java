@@ -1,28 +1,25 @@
 package rpc.simple.proxy;
 
+import lombok.Setter;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import rpc.simple.cache.system.FilterCache;
 import rpc.simple.exception.RpcException;
 import rpc.simple.extension.ExtensionLoader;
 import rpc.simple.extension.ExtensionName;
-import rpc.simple.cache.system.FilterCache;
 import rpc.simple.filter.FilterChain;
-import rpc.simple.filter.lifecycle.ClientBeforeSendFilter;
 import rpc.simple.filter.lifecycle.ClientInvokedFilter;
-import rpc.simple.model.RpcRequest;
-import rpc.simple.model.RpcResponse;
-import rpc.simple.model.Service;
-import rpc.simple.model.ServiceInstance;
+import rpc.simple.model.*;
 import rpc.simple.registry.ServiceDiscovery;
 import rpc.simple.remoting.transport.RpcTransport;
 import rpc.simple.router.Router;
-import rpc.simple.support.enums.FailStrategyEnum;
-import rpc.simple.utils.SingletonFactory;
 import rpc.simple.utils.SnowFlakeUtil;
 
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.BiConsumer;
 
 /**
  * 代理客户端, 发起rpc请求
@@ -37,6 +34,8 @@ public class RpcRequestProxy implements Proxy {
     private final Router router;
     private final RpcTransport rpcTransport;
     private final Service service;
+    @Setter
+    private Callback callback;
 
     public RpcRequestProxy(RpcTransport rpcTransport, Service service) {
         this.serviceDiscovery = ExtensionLoader.ofType(ServiceDiscovery.class).getExtension(ExtensionName.DISCOVERY);
@@ -50,7 +49,8 @@ public class RpcRequestProxy implements Proxy {
         return (T) java.lang.reflect.Proxy.newProxyInstance(clazz.getClassLoader(), new Class<?>[]{clazz}, this);
     }
 
-    private Object doProxy(Method method, Object[] args) throws Throwable {
+    @SneakyThrows
+    private CompletableFuture<RpcResponse> doProxy(Method method, Object[] args) {
         Long requestId = SnowFlakeUtil.nextId();
 
         log.info("发起rpc请求, requestId:{}", requestId);
@@ -76,9 +76,24 @@ public class RpcRequestProxy implements Proxy {
         //发送请求
         CompletableFuture<RpcResponse> future =
             (CompletableFuture<RpcResponse>) rpcTransport.sendAsync(rpcRequest, routedService);
+
+        return future;
+    }
+
+    @SneakyThrows
+    private Object syncProxy(Method method, Object[] args) {
+        CompletableFuture<RpcResponse> future = doProxy(method, args);
         //阻塞
         RpcResponse rpcResponse = future.get();
         return rpcResponse.getData();
+    }
+
+    @SneakyThrows
+    private Object asyncProxy(Method method, Object[] args) {
+
+        CompletableFuture<RpcResponse> future = doProxy(method, args);
+        future.whenCompleteAsync(callback);
+        return null;
     }
 
     private void checkResponse(RpcRequest request, RpcResponse response) {
@@ -91,7 +106,10 @@ public class RpcRequestProxy implements Proxy {
     }
 
     @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        return doProxy(method, args);
+    public Object invoke(Object proxy, Method method, Object[] args) {
+        if (callback != null) {
+            return asyncProxy(method, args);
+        }
+        return syncProxy(method, args);
     }
 }

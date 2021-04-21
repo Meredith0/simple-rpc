@@ -36,4 +36,13 @@ public final class FutureCache {
         }
         throw new IllegalStateException();
     }
+
+    public static void completeExceptionally(RpcResponse rpcResponse, Exception e) {
+        CompletableFuture<RpcResponse> future = CACHE.remove(rpcResponse.getRequestId());
+        if (future != null) {
+            future.completeExceptionally(e);
+            return;
+        }
+        throw new IllegalStateException();
+    }
 }

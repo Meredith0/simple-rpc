@@ -46,7 +46,7 @@ public final class NettyRpcClient implements RpcTransport {
 
     @PostConstruct
     private void start() {
-        log.debug("客户端正在启动...");
+        log.debug("*************** 客户端正在启动... ***************");
         eventLoopGroup = new NioEventLoopGroup();
         bootstrap = new Bootstrap()
             .group(eventLoopGroup)
@@ -65,7 +65,7 @@ public final class NettyRpcClient implements RpcTransport {
                     p.addLast(new ResponseHandler());//响应处理器
                 }
             });
-        log.debug("客户端启动成功! ");
+        log.debug("*************** 客户端启动成功! ***************");
     }
 
     @Override
@@ -95,7 +95,7 @@ public final class NettyRpcClient implements RpcTransport {
                         FilterChain chain = FilterCache.get(ClientSentFilter.class);
                         chain.invokeChain(protocol, serviceInstance);
 
-                        log.debug("client sent successfully! protocol:{}", protocol);
+                        log.debug("client successfully sent protocol:{}", protocol);
                     } else {
                         future.channel().close();
                         responseFuture.completeExceptionally(future.cause());
@@ -103,7 +103,7 @@ public final class NettyRpcClient implements RpcTransport {
                     }
                 });
         } else {
-            throw new RpcException("server side channel closed");
+            throw new RpcException("channel closed on server side! ");
         }
         return responseFuture;
     }

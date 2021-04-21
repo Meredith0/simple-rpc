@@ -39,7 +39,7 @@ public class ResponseHandler extends SimpleChannelInboundHandler<RpcProtocol> {
             log.debug("received heartbeat pong");
             return;
         }
-        log.debug("ResponseHandler接受到protocol:{}", protocol);
+        log.debug("ResponseHandler received protocol:{}", protocol);
 
         //过滤器
         FilterChain chain = FilterCache.get(ClientReceivedFilter.class);

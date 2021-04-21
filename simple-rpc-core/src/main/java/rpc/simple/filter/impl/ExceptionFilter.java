@@ -3,6 +3,7 @@ package rpc.simple.filter.impl;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;
 import rpc.simple.annotation.RpcFilter;
+import rpc.simple.cache.FutureCache;
 import rpc.simple.exception.BusinessException;
 import rpc.simple.exception.RpcException;
 import rpc.simple.filter.lifecycle.ClientReceivedFilter;
@@ -59,6 +60,7 @@ public class ExceptionFilter extends ClientReceivedFilter {
      * 业务异常不属于错误, 直接抛出
      */
     private void handleBusinessException(RpcResponse response) {
+        FutureCache.completeExceptionally(response, new BusinessException(response.toString()));
         throw new BusinessException(response.toString());
     }
 }

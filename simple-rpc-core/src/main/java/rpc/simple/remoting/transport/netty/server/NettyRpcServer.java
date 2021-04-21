@@ -82,7 +82,7 @@ public class NettyRpcServer {
 
             // 绑定端口，同步等待绑定成功
             ChannelFuture cf = bootstrap.bind(host, Integer.parseInt(PORT)).sync();
-            //注册上线
+            //注册元数据
             registerMetadata();
             log.info("****************** netty-rpc-server 上线成功! ******************");
 

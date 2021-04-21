@@ -17,19 +17,7 @@ import rpc.simple.serialize.Serializer;
 import java.util.Arrays;
 
 /**
- * rpc协议
- * 0   1   2   3   4       5   6   7   8   9    10        11    12   13   14   15   16
- * +---+---+---+---+-------+---+---+---+---+----+---------+-----+----+----+----+----+
- * |   magic code  |version|     length    |type|compress|serial|        traceId      |
- * +---------------+-------+---------------+----+--------+------+-------------------+
- * |                                                                                |
- * |                                body                                            |
- * |                              ... ...                                           |
- * |                              ... ...                                           |
- * +--------------------------------------------------------------------------------+
- * 4B  magic code（魔法数: srpc）   1B ver（版本: 1）   4B length（消息长度）    1B type（消息类型）
- * 1B compress（压缩类型） 1B serial（序列化类型）    4B  traceId（rpc请求序列号）
- * body（object类型数据）
+ * rpc协议解码
  *
  * @author zeng.fk
  * 2021-04-06 19:08
@@ -121,7 +109,7 @@ public class ProtocolDecoder extends LengthFieldBasedFrameDecoder {
                 protocol.setBody(serializer.deserialize(bs, RpcResponse.class));
             }
             else {
-                throw new RpcException("未知 RpcProtocol type, type:" + type);
+                throw new RpcException("unknown RpcProtocol type, type:" + type);
             }
         }
         return protocol;
@@ -130,7 +118,7 @@ public class ProtocolDecoder extends LengthFieldBasedFrameDecoder {
     private void checkVersion(ByteBuf in) {
         byte version = in.readByte();
         if (version != RpcProtocol.VERSION) {
-            throw new RpcException("未知版本号, version: " + version);
+            throw new RpcException("unknown version: " + version);
         }
     }
 
@@ -141,7 +129,7 @@ public class ProtocolDecoder extends LengthFieldBasedFrameDecoder {
         for (int i = 0; i < len; i++) {
             if (tmp[i] != RpcProtocol.MAGIC_CODE[i]) {
                 log.error("RpcProtocol.MAGIC_CODE:{} vs received MAGIC_CODE:{}", RpcProtocol.MAGIC_CODE, Arrays.toString(tmp));
-                throw new RpcException("未知 MAGIC CODE");
+                throw new RpcException("unknown MAGIC CODE");
             }
         }
     }

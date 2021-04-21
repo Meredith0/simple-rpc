@@ -11,13 +11,13 @@ import rpc.simple.annotation.*;
 import rpc.simple.cache.system.FailStrategyCache;
 import rpc.simple.cache.system.FilterCache;
 import rpc.simple.filter.Filter;
+import rpc.simple.model.Callback;
 import rpc.simple.model.Service;
 import rpc.simple.model.Tag;
 import rpc.simple.provider.ServiceProvider;
 import rpc.simple.proxy.RpcRequestProxy;
 import rpc.simple.remoting.transport.RpcTransport;
 import rpc.simple.support.FailTolerate;
-import rpc.simple.support.strategy.FailMock;
 
 import java.lang.reflect.Field;
 
@@ -103,12 +103,19 @@ public class AnnotationLoader implements BeanPostProcessor {
     @SneakyThrows
     private Object getProxy(Field field) {
         RpcReference annotation = field.getAnnotation(RpcReference.class);
+        Class<? extends Callback> callback = annotation.callback();
+        boolean isCallback = (callback != Callback.class);
 
+        //缓存容错策略
         Service service = new Service(annotation.name(), annotation.version(), new Tag(annotation.tag()));
-
         FailStrategyCache.put(service, annotation.failStrategy());
+
         //动态代理
         RpcRequestProxy proxy = new RpcRequestProxy(transport, service);
+
+        if (isCallback) {
+            proxy.setCallback(callback.newInstance());
+        }
         return proxy.newProxyInstance(field.getType());
     }
 }

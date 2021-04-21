@@ -1,8 +1,9 @@
 package rpc.simple.model;
 
-import lombok.*;
-
-import java.io.Serializable;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @author zeng.fk
@@ -12,13 +13,11 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Data
 @Builder
-public class RpcRequest implements Serializable {
-    private static final long serialVersionUID = 691723561234346L;
+public class RpcRequest {
 
     private Long requestId;
     private String methodName;
     private Object[] parameters;
     private Class<?>[] paramTypes;
     private Service service;
-
 }

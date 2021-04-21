@@ -36,7 +36,7 @@ public class RequestHandler extends SimpleChannelInboundHandler<RpcProtocol> {
         FilterChain serverReceivedFilterChain = FilterCache.get(ServerReceivedFilter.class);
         serverReceivedFilterChain.invokeChain(protocol, ctx);
 
-        log.debug("RequestHandler接收到protocol: {} ", protocol);
+        log.debug("RequestHandler received protocol: {} ", protocol);
 
         RpcRequest rpcRequest = (RpcRequest) protocol.getBody();
         RpcResponse rpcResponse = null;

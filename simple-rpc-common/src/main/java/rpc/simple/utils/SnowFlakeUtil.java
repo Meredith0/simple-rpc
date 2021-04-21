@@ -120,9 +120,6 @@ public class SnowFlakeUtil {
         /*
          * 机器ID向左移12位
          */
-        /*
-         * 开始时间截 (2015-01-01)
-         */
         return ((timestamp - EPOCH) << timestampLeftShift)
             | (datacenterId << datacenterIdShift)
             | (workerId << sequenceBits)
@@ -151,13 +148,4 @@ public class SnowFlakeUtil {
     private long timeGen() {
         return System.currentTimeMillis();
     }
-
-    // public static void main(String[] args) throws InterruptedException {
-    //     SnowflakeIdWorker idWorker = new SnowflakeIdWorker(0, 0);
-    //     for (int i = 0; i < 10; i++) {
-    //         long id = idWorker.nextId();
-    //         Thread.sleep(1);
-    //         System.out.println(id);
-    //     }
-    // }
 }

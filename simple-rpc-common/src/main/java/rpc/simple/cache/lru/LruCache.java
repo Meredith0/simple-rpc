@@ -8,6 +8,7 @@ import rpc.simple.cache.Cache;
  * 2021-04-15 10:11
  */
 @Slf4j
+@Deprecated
 public class LruCache<T> implements Cache<T> {
 
     @Override
