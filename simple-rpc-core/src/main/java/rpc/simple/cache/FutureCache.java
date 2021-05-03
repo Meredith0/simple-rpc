@@ -1,5 +1,6 @@
 package rpc.simple.cache;
 
+import com.google.common.cache.Cache;
 import lombok.extern.slf4j.Slf4j;
 import rpc.simple.enums.CacheTypeEnum;
 import rpc.simple.model.RpcResponse;
@@ -21,15 +22,14 @@ public final class FutureCache {
     /**
      * key: requestId, value:RpcResponse Future
      */
-    private static final Cache<CompletableFuture<RpcResponse>> CACHE =
-        CacheFactory.newCache(FutureCache.class.getSimpleName(), CacheTypeEnum.TIMEOUT, INIT_CAPACITY, TIMEOUT);
+    private static final Cache<Long,  CompletableFuture<RpcResponse>> CACHE = CacheFactory.newCache(FutureCache.class.getSimpleName(), CacheTypeEnum.TIMEOUT, INIT_CAPACITY, TIMEOUT);
 
     public static void put(Long requestId, CompletableFuture<RpcResponse> future) {
         CACHE.put(requestId, future);
     }
 
     public static void complete(RpcResponse rpcResponse) {
-        CompletableFuture<RpcResponse> future = CACHE.remove(rpcResponse.getRequestId());
+        CompletableFuture<RpcResponse> future = CACHE.getIfPresent(rpcResponse.getRequestId());
         if (future != null) {
             future.complete(rpcResponse);
             return;
@@ -38,9 +38,10 @@ public final class FutureCache {
     }
 
     public static void completeExceptionally(RpcResponse rpcResponse, Exception e) {
-        CompletableFuture<RpcResponse> future = CACHE.remove(rpcResponse.getRequestId());
+        CompletableFuture<RpcResponse> future = CACHE.getIfPresent(rpcResponse.getRequestId());
         if (future != null) {
             future.completeExceptionally(e);
+            CACHE.invalidate(rpcResponse.getRequestId());
             return;
         }
         throw new IllegalStateException();

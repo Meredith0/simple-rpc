@@ -15,11 +15,12 @@ import rpc.simple.remoting.transport.RpcTransport;
 import rpc.simple.router.Router;
 import rpc.simple.utils.SnowFlakeUtil;
 
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.BiConsumer;
 
 /**
  * 代理客户端, 发起rpc请求
@@ -28,7 +29,7 @@ import java.util.function.BiConsumer;
  * 2021-04-05 16:11
  */
 @Slf4j
-public class RpcRequestProxy implements Proxy {
+public class RpcRequestProxy implements InvocationHandler {
 
     private final ServiceDiscovery serviceDiscovery;
     private final Router router;
@@ -46,7 +47,7 @@ public class RpcRequestProxy implements Proxy {
 
     @SuppressWarnings("unchecked")
     public <T> T newProxyInstance(Class<T> clazz) {
-        return (T) java.lang.reflect.Proxy.newProxyInstance(clazz.getClassLoader(), new Class<?>[]{clazz}, this);
+        return (T) Proxy.newProxyInstance(clazz.getClassLoader(), new Class<?>[]{clazz}, this);
     }
 
     @SneakyThrows

@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.beans.factory.config.InstantiationAwareBeanPostProcessor;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import rpc.simple.annotation.*;
@@ -40,22 +42,27 @@ public class AnnotationLoader implements BeanPostProcessor {
     @SneakyThrows
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+        //注册服务提供者
         if (bean.getClass().isAnnotationPresent(RpcService.class)) {
             registerService(bean);
         }
 
+        //注册过滤器
         if (bean.getClass().isAnnotationPresent(RpcFilter.class) && bean instanceof Filter) {
             registerFilter((Filter<?, ?>) bean);
         }
 
+        //注册容错策略
         if (bean.getClass().isAnnotationPresent(FailStrategy.class)) {
             registerFailStrategy(bean);
         }
 
+        //注册服务降级接口
         if (bean.getClass().isAnnotationPresent(MockService.class)) {
             registerMockService(bean);
         }
 
+        //代理调用方
         Field[] declaredFields = bean.getClass().getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(RpcReference.class)) {

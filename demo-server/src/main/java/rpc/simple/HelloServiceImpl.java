@@ -24,13 +24,6 @@ public class HelloServiceImpl implements HelloService {
     }
 
     @Override
-    public String sayHelloAsync(String str, BiConsumer<?, ?> callback) {
-
-        log.info("async hello {}", str);
-        return "async hello " + str;
-    }
-
-    @Override
     public String testBusinessException(String err) {
 
         throw new BusinessException(err);

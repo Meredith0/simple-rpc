@@ -1,5 +1,6 @@
 package rpc.simple;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,18 +33,9 @@ public class HelloServiceTest {
     @Autowired
     HelloServiceTest self;
 
-    public HelloServiceTest() {
-    }
-
     private void rpcSayHello() {
         String res = helloService.sayHello("foo");
         log.info("============= 测试正常rpc调用, 返回结果: {} =============", res);
-    }
-
-    private void rpcSayHelloAsync() {
-        String res = helloService.sayHelloAsync("foo",(o,o1)->{
-            log.info("{},{}", o, o1);
-        });
     }
 
     private void testBusinessException() {
@@ -92,28 +84,32 @@ public class HelloServiceTest {
             Scanner scanner = new Scanner(System.in);
             int read = scanner.nextInt();
 
-            switch (read) {
-                case 1:
-                    self.rpcSayHello();
-                    break;
-                case 2:
-                    self.testBusinessException();
-                    break;
-                case 3:
-                    self.testRpcException();
-                    break;
-                case 4:
-                    self.testFailMock();
-                    break;
-                case 5:
-                    self.testCallback();
-                    break;
-                case 6:
-                    self.testCallbackWithBusinessException();
-                    break;
+            try {
+                switch (read) {
+                    case 1:
+                        self.rpcSayHello();
+                        break;
+                    case 2:
+                        self.testBusinessException();
+                        break;
+                    case 3:
+                        self.testRpcException();
+                        break;
+                    case 4:
+                        self.testFailMock();
+                        break;
+                    case 5:
+                        self.testCallback();
+                        break;
+                    case 6:
+                        self.testCallbackWithBusinessException();
+                        break;
 
-                default:
-                    throw new IllegalStateException();
+                    default:
+                        throw new IllegalStateException();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
     }

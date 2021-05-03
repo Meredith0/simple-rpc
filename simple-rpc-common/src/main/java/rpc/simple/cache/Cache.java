@@ -4,13 +4,14 @@ package rpc.simple.cache;
  * @author zeng.fk
  * 2021-04-15 10:04
  */
-public interface Cache<T> {
+@Deprecated
+public interface Cache<K,V> {
 
-    void put(Long key, T value);
+    void put(K key, V value);
 
-    T remove(Long key);
+    V remove(K key);
 
-    T get(Long key);
+    V get(K key);
 
     void expire();
 

@@ -22,11 +22,6 @@ public class HelloServiceFailmock implements HelloService {
     }
 
     @Override
-    public String sayHelloAsync(String str, BiConsumer<?, ?> callback) {
-        return null;
-    }
-
-    @Override
     public String testBusinessException(String err) {
         return null;
     }

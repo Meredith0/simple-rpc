@@ -1,8 +1,8 @@
 package rpc.simple.cache;
 
+import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
-import rpc.simple.cache.timeout.TimeoutCache;
 import rpc.simple.enums.CacheTypeEnum;
 
 import java.util.Map;
@@ -15,25 +15,21 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class CacheFactory {
 
-    private static final Map<String, Cache<?>> INSTANCE_MAP = Maps.newConcurrentMap();
+    private static final Map<String, com.google.common.cache.Cache<Long, Object>> INSTANCE_MAP = Maps.newConcurrentMap();
 
     private CacheFactory() {}
 
-    public static <T> Cache<T> newCache(String name, CacheTypeEnum type, int initCapacity, long duration) {
+    public static <T> com.google.common.cache.Cache<Long,T> newCache(String name, CacheTypeEnum type, int initCapacity,
+                                                                  long timeoutMillis) {
+        com.google.common.cache.Cache<Long, Object> cache = CacheBuilder.newBuilder()
+            .initialCapacity(initCapacity)
+            .expireAfterWrite(timeoutMillis, TimeUnit.MILLISECONDS).build();
 
-        Cache<?> instance = INSTANCE_MAP.get(name);
-        if (instance == null) {
-            synchronized (CacheFactory.class) {
-                if (instance == null && type.equals(CacheTypeEnum.TIMEOUT)) {
-                    instance = new TimeoutCache<>(initCapacity, duration);
-                    INSTANCE_MAP.putIfAbsent(name, instance);
-                }
-            }
-        }
-        return (Cache<T>) INSTANCE_MAP.get(name);
+        INSTANCE_MAP.put(name, cache);
+        return (com.google.common.cache.Cache<Long, T>) cache;
     }
 
-    public static Cache<?> getCache(String name) {
-        return INSTANCE_MAP.get(name);
+    public static <T> com.google.common.cache.Cache<Long, T> getCache(String name) {
+        return (com.google.common.cache.Cache<Long, T>) INSTANCE_MAP.get(name);
     }
 }

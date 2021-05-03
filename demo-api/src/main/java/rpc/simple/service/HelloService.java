@@ -10,9 +10,6 @@ public interface HelloService {
 
     String sayHello(String str);
 
-    String sayHelloAsync(String str, BiConsumer<?, ?> callback);
-
-
     String testBusinessException(String err);
 
     String testRpcException(String err);
