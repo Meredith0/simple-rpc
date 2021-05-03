@@ -13,6 +13,7 @@ import rpc.simple.model.*;
 import rpc.simple.registry.ServiceDiscovery;
 import rpc.simple.remoting.transport.RpcTransport;
 import rpc.simple.router.Router;
+import rpc.simple.support.enums.FailStrategyEnum;
 import rpc.simple.utils.SnowFlakeUtil;
 
 import java.lang.reflect.InvocationHandler;

@@ -113,9 +113,8 @@ public class AnnotationLoader implements BeanPostProcessor {
         Class<? extends Callback> callback = annotation.callback();
         boolean isCallback = (callback != Callback.class);
 
-        //缓存容错策略
-        Service service = new Service(annotation.name(), annotation.version(), new Tag(annotation.tag()));
-        FailStrategyCache.put(service, annotation.failStrategy());
+        Service service = new Service(annotation.name(), annotation.version(), new Tag(annotation.tag()),
+            annotation.failStrategy().getCode());
 
         //动态代理
         RpcRequestProxy proxy = new RpcRequestProxy(transport, service);

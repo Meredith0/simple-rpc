@@ -22,9 +22,19 @@ public class Service {
     protected String version;
     @EqualsAndHashCode.Exclude
     protected Tag tag;
+    @EqualsAndHashCode.Exclude
+    protected byte failStrategy;
 
     public Service(String serviceName, String version) {
         this.serviceName = serviceName;
         this.version = version;
     }
+
+    public Service(String serviceName, String version, Tag tag) {
+        this.serviceName = serviceName;
+        this.version = version;
+        this.tag = tag;
+    }
+
+
 }

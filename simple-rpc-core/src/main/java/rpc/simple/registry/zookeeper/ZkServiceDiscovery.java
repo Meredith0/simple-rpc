@@ -39,7 +39,7 @@ public class ZkServiceDiscovery implements ServiceDiscovery {
         String servicePath = ZkServiceRegistry.PATH_PREFIX + service.getServiceName();
         List<String> serviceInstanceStrList = zkClient.getChildren().forPath(servicePath);
         if (CollectionUtils.isEmpty(serviceInstanceStrList)) {
-            throw new RpcException("无法获取服务调用地址, serviceName:" + service);
+            throw new RpcException("无法获取服务调用地址, servicePath:" + servicePath);
         }
 
         serviceInstanceStrList.forEach(path->{

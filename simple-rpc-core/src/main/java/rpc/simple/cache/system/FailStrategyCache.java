@@ -16,7 +16,7 @@ import java.util.Map;
 public class FailStrategyCache {
 
     private static final Map<Class<? extends FailTolerate>, FailTolerate> STRATEGY = Maps.newConcurrentMap();
-    private static final Map<Service, FailStrategyEnum> CONFIG = Maps.newConcurrentMap();
+    private static final Map<Integer, FailStrategyEnum> CONFIG = Maps.newConcurrentMap();
 
     public static void put(Class<?> classname, FailTolerate strategy) {
 
@@ -26,12 +26,12 @@ public class FailStrategyCache {
         STRATEGY.put((Class<? extends FailTolerate>) classname, strategy);
     }
 
-    public static void put(Service service, FailStrategyEnum strategyEnum) {
+    public static void put(int client, FailStrategyEnum strategyEnum) {
 
         if (strategyEnum == null) {
             throw new IllegalStateException();
         }
-        CONFIG.put(service, strategyEnum);
+        CONFIG.put(client, strategyEnum);
     }
 
     public static <T> FailTolerate getStrategy(Class<T> classname) {

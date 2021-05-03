@@ -82,6 +82,7 @@ public final class NettyRpcClient implements RpcTransport {
                 .type(RpcProtocol.TYPE_REQ)
                 .compressor(RpcProtocol.COMPRESSION_GZIP)
                 .serializer(RpcProtocol.SERIALIZER_PROTOSTUFF)
+                .failStrategy(req.getService().getFailStrategy())
                 .body(req).build();
 
             //过滤器, 用于容错机制
