@@ -30,6 +30,8 @@ public class HelloServiceTest {
     private HelloService callbackTest;
     @RpcReference(name = "helloService", failStrategy = FailStrategyEnum.FAIL_MOCK)
     private HelloService failMockTest;
+    @RpcReference(name = "helloService", failStrategy = FailStrategyEnum.FAIL_OVER)
+    private HelloService failOverTest;
     @Autowired
     HelloServiceTest self;
 
@@ -63,6 +65,11 @@ public class HelloServiceTest {
         log.info("============= 测试CallbackWithBusinessException, 返回结果: {} =============", res);
     }
 
+    private void testFailover() {
+        String s = failOverTest.testRpcException("testing failover...");
+        log.info("============= 测试Failover, 返回结果: {} =============", s);
+    }
+
     @PostConstruct
     @Bean
     void test() {
@@ -80,6 +87,7 @@ public class HelloServiceTest {
             log.info("*************4: 测试FailMock *************");
             log.info("*************5: 测试Callback *************");
             log.info("*************6: 测试Callback时发生业务异常 *************");
+            log.info("*************7: 测试Failover *************");
             log.info("请输入:");
             Scanner scanner = new Scanner(System.in);
             int read = scanner.nextInt();
@@ -104,6 +112,8 @@ public class HelloServiceTest {
                     case 6:
                         self.testCallbackWithBusinessException();
                         break;
+                    case 7:
+                        self.testFailover();
 
                     default:
                         throw new IllegalStateException();
